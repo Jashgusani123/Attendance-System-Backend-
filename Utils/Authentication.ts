@@ -1,0 +1,93 @@
+import { NextFunction, Response, Request } from "express";
+import jwt from "jsonwebtoken";
+
+// Extend Request type to include custom properties
+export interface AuthRequest extends Request {
+  Id?: string; // Assuming Id is a string
+  isLoggedIn?: boolean;
+  type?:string
+}
+
+// export const IsLoggedin = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+//   try {
+//     const token = req.cookies?.["Access"]; // Ensure `req.cookies` exists
+
+//     if (!token) {
+//       res.status(401).json({ message: "Unauthorized: No token provided" });
+//       return; // Ensures function stops execution
+//     }
+
+//     // Ensure JWT_SECRET is defined
+//     if (!process.env.JWT_SECRET) {
+//       console.error("JWT_SECRET is missing from environment variables.");
+//       res.status(500).json({ message: "Internal Server Error: Missing JWT_SECRET" });
+//       return; // Ensures function stops execution
+//     }
+
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET) as { _id: string };
+
+//     req.Id = decoded._id; // Assign user ID from token
+//     req.isLoggedIn = true;
+
+//     next(); // Ensure function proceeds to next middleware
+//   } catch (error) {
+//     console.error("JWT Verification Error:", error);
+//     res.status(401).json({ message: "Unauthorized: Invalid token" });
+//     return; // Ensures function stops execution
+//   }
+// };
+
+
+export const GetUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    
+
+    const token1 = req.cookies?.["Admin"]; // Admin token
+    const token2 = req.cookies?.["Teacher"]; // Teacher token
+    const token3 = req.cookies?.["Student"]; // Student token
+    
+    
+    if (!token1 && !token2 && !token3) {
+      res.status(401).json({ message: "Unauthorized: No token provided" });
+      return; // Stops execution if no tokens are provided
+    }
+    
+    
+    // Ensure JWT_SECRET is defined
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is missing from environment variables.");
+      res.status(500).json({ message: "Internal Server Error: Missing JWT_SECRET" });
+      return; // Stops execution if JWT_SECRET is missing
+    }
+
+    let decoded: { _id: string } | null = null;
+    let userType: string | null = null;
+
+    // Decode the token based on which one is available
+    if (token1) {
+      decoded = jwt.verify(token1, process.env.JWT_SECRET) as { _id: string };
+      userType = "Admin";
+    } else if (token2) {
+      decoded = jwt.verify(token2, process.env.JWT_SECRET) as { _id: string };
+      userType = "Teacher";
+    } else if (token3) {
+      decoded = jwt.verify(token3, process.env.JWT_SECRET) as { _id: string };
+      userType = "Student";
+    }
+
+    // If a decoded user exists, assign the values to the request and proceed
+    if (decoded && userType) {
+      req.Id = decoded._id; // Assign the user ID
+      req.isLoggedIn = true; // Mark the user as logged in
+      req.type = userType; // Assign the user type (Admin/Teacher/Student)
+      next(); // Proceed to the next middleware
+    } else {
+      res.status(401).json({ message: "Unauthorized: Invalid token" });
+      return; // Stops execution if decoding fails
+    }
+  } catch (error) {
+    console.error("JWT Verification Error:", error);
+    res.status(401).json({ message: "Unauthorized: Invalid token" });
+    return; // Stops execution on error
+  }
+};

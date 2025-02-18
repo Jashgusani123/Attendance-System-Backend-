@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "./dist",  // Output compiled JS files here
+    "rootDir": "./",      // Treat the main folder as the root for TS files
+    "esModuleInterop": true
+  },
+  "include": [
+    "*.ts",        // Include all TypeScript files in the main folder
+    "controllers/*.ts" // Include TypeScript files inside the 'controllers' folder
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"         // Avoid re-compiling output files
+  ]
+}
