@@ -1,17 +1,18 @@
 {
     "builds": [
       {
-        "src": "app.ts",
+        "src": "src/app.ts",
         "use": "@vercel/node"
       }
     ],
     "env": {
-      "NODE_ENV": "production"
+      "NODE_ENV": "production",
+      "MONGO_URI": "mongodb+srv://project1:T7BIUp35T0ZHf9oG@allprojects.ggk3v.mongodb.net/AttendanceSystem"  
     },
     "routes": [
       {
         "src": "/(.*)",
-        "dest": "/app.ts"
+        "dest": "/src/app.ts"
       }
     ]
   }
