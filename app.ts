@@ -22,9 +22,15 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://192.168.0.192:5173",
+  process.env.FRONTEND
+].filter((origin): origin is string => !!origin);
+
 app.use(cors({
-  origin: ["http://localhost:5173","http://192.168.0.192:5173"],
-  credentials: true  // ✅ Allow cookies
+  origin: allowedOrigins,
+  credentials: true
 }));
 app.use(cookieParser());
 
@@ -35,7 +41,7 @@ connectDB();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://192.168.0.192:5173"],
+    origin: allowedOrigins,
     credentials: true,
   },
 });
