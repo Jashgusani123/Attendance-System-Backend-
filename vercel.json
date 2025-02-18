@@ -5,8 +5,6 @@
         "use": "@vercel/node"
       }
     ],
-    
-    "output": "build",
     "env": {
       "NODE_ENV": "production"
     }
