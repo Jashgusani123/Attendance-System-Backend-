@@ -5,12 +5,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
-    "outDir": "./dist",
-    "rootDir": "./",
+    "outDir": "./dist", 
+    "rootDir": "./", 
     "types": ["node", "express"]
   },
   "include": [
-    "./**/*"
+    "**/*.ts"
   ],
   "exclude": [
     "node_modules"
