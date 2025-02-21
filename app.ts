@@ -55,32 +55,40 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-const userSockets = new Map<string, string>();
+const StudentSockets = new Map<string, string>();
+const TeacherSockets = new Map<string, string>();
 // Socket.IO Connection
 io.on("connection", (socket: Socket) => {
   console.log(`⚡ New Client Connected: ${socket.id}`);
 
   // Store student erno when they join
   socket.on("register-student", (erno: string) => {
-    console.log(erno);
     
-    userSockets.set(erno, socket.id);
+    StudentSockets.set(erno, socket.id);
     console.log(`Student Registered: ${erno} -> ${socket.id}`);
   });
 
+  socket.on("register-teacher" , (name:string)=>{
+    console.log("gf");
+    
+    TeacherSockets.set(name, socket.id);
+    console.log(`Teacher Registered: ${name} -> ${socket.id}`);
+  })
+
   // Handle class going live
-  socket.on("start-class", (students: string[], classDetails: object) => {
+  socket.on("start-class", (students: string[], classDetails: object , classID:String) => {
     console.log(students , classDetails);
     
     students.forEach(erno => {
-      const studentSocketId = userSockets.get(erno);
-      console.log(studentSocketId);
+      const studentSocketId = StudentSockets.get(erno);
       
       if (studentSocketId) {
-        io.to(studentSocketId).emit("class-live", classDetails);
+        io.to(studentSocketId).emit("class-live", classDetails,classID);
         console.log(`📢 Class Live Notification sent to: ${erno}`);
       }
       if(socket){
+        console.log(socket.id);
+        
         io.to(socket.id).emit("class-live", classDetails)
       }
     });
@@ -88,10 +96,18 @@ io.on("connection", (socket: Socket) => {
 
   // Handle disconnection
   socket.on("disconnect", () => {
-    userSockets.forEach((id, erno) => {
+    StudentSockets.forEach((id, erno) => {
       if (id === socket.id) {
-        userSockets.delete(erno);
+        StudentSockets.delete(erno);
         console.log(`🚪 Student Disconnected: ${erno}`);
+      }
+    });
+  });
+  socket.on("disconnect", () => {
+    TeacherSockets.forEach((id, name) => {
+      if (id === socket.id) {
+        TeacherSockets.delete(name);
+        console.log(`🚪 Student Disconnected: ${name}`);
       }
     });
   });
@@ -132,4 +148,4 @@ server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
-export {io,server}
+export {io,server , TeacherSockets}

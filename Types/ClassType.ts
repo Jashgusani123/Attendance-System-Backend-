@@ -2,7 +2,7 @@ export interface NewClass {
     subjectName: string;
     collegeName: string;
     departmentName: string;
-    location:String;
+    location:{ latitude: number; longitude: number };
     semester: number;
     starting: string;
     ending: string;

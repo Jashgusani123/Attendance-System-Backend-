@@ -117,20 +117,19 @@ export const getTeacher = TryCatch(async(req: AuthRequest, res: Response, next: 
     
 });
 
-export const GenerateQR = TryCatch(async(req:Request ,  res:Response , next:NextFunction)=>{
-    
-        try {
-          const { classDetails, students } = req.body;
-      
-          // Data to be encoded in the QR Code
-          const qrData = JSON.stringify({ classDetails, students });
-      
-          // Generate QR Code
-          const qrCode = await QRCode.toDataURL(qrData);
-      
-          res.json({ success:true , qrCode }); // Send the QR code URL to frontend
-        } catch (error) {
-          res.status(500).json({ error: "Failed to generate QR Code" });
-        }
-      
-})
+export const GenerateQR = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
+    const { classDetails = {}, students, classID, socketIDs } = req.body;
+
+    // Ensure `classDetails` is an object before merging
+    const updatedClassDetails = { ...classDetails, classID, socketIDs };
+
+    console.log("HERE THAT QR CODE IS UPDATED:", updatedClassDetails);
+
+    // Data to be encoded in the QR Code
+    const qrData = JSON.stringify({ classDetails: updatedClassDetails, students });
+
+    // Generate QR Code
+    const qrCode = await QRCode.toDataURL(qrData);
+
+    res.json({ success: true, qrCode }); // Send the QR code URL to frontend
+});

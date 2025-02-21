@@ -43,7 +43,10 @@ const ClassSchema = new Schema(
             default: [],
         },
         location:{
-            type:String
+            type: {
+                latitude: { type: Number, required: true },
+                longitude: { type: Number, required: true }
+              },
         },
         createdBy: {
             type: mongoose.Types.ObjectId,
@@ -55,6 +58,10 @@ const ClassSchema = new Schema(
             enum: ['teacher'],
             default: 'teacher',
         },
+        teacherName: {
+            type: String,
+            required: true
+        }
     },
     { timestamps: true }
 );
@@ -71,7 +78,8 @@ export interface IClass extends Document {
     createdBy: mongoose.Types.ObjectId;
     presentStudent: string[];
     role: string;
-    location:String;
+    location:{ latitude: number; longitude: number };
+    teacherName: string;
 }
 
 
