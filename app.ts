@@ -142,7 +142,9 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
+app.get("/" , (req , res) =>{
+  res.send("Hello World !!")
+})
 // Start Server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
