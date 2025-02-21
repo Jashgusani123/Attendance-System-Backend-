@@ -10,8 +10,7 @@
     "types": ["node", "express"]
   },
   "include": [
-    "app.ts"
-
+    "./**/*"
   ],
   "exclude": [
     "node_modules"
