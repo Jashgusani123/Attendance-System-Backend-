@@ -29,7 +29,7 @@ const allowedOrigins = [
 ].filter((origin): origin is string => !!origin);
 
 app.use(cors({
-  origin: "https://attendance-system-gold-six.vercel.app",
+  origin: "https://attendance-system-txfn.onrender.com",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -48,7 +48,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "http://192.168.0.192:5173",
-      "https://attendance-system-gold-six.vercel.app/"
+      "https://attendance-system-txfn.onrender.com"
     ],
     credentials: true,
   },
