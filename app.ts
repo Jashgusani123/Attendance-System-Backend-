@@ -32,7 +32,7 @@ app.use(cors({
   origin: [
     "http://localhost:5173",
     "http://192.168.0.192:5173",
-    process.env.FRONTEND!
+    "https://attendance-system-gold-six.vercel.app/"
   ],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -50,7 +50,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "http://192.168.0.192:5173",
-      process.env.FRONTEND!
+      "https://attendance-system-gold-six.vercel.app/"
     ],
     credentials: true,
   },
