@@ -9,7 +9,7 @@ const cookieSender = (res: Response, Id:string , type:string): void => {
 
   const cookieOptions = {
     maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-    sameSite: "lax" as const,  // Type assertion to literal type
+    sameSite: "none" as const,  // Type assertion to literal type
     httpOnly: true,
     secure: true, // Use secure cookies in production
   };
