@@ -29,7 +29,7 @@ const allowedOrigins = [
 ].filter((origin): origin is string => !!origin);
 
 app.use(cors({
-  origin: "https://attendance-system-txfn.onrender.com",
+  origin: ["https://attendance-system-txfn.onrender.com", "http://localhost:5173"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
