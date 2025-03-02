@@ -6,6 +6,8 @@ import { ErrorHandler } from '../Utils/ErrorHandling'
 import bcrypt from 'bcryptjs';
 import CookieSender from '../Utils/CookieSender'
 import { AuthRequest } from '../Utils/Authentication';
+import moment from 'moment';
+import Class from '../Models/Class';
 
 
 export const Register = TryCatch(
@@ -103,36 +105,23 @@ export const getStudent = TryCatch(async (req: AuthRequest, res: Response, next:
 
 });
 
-export const ScanQR = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const { classDetails, students,ID } = req.body;
-    console.log(classDetails);
-
-    // Check if both classDetails and students are present
-    if(classDetails.classID !== ID){
-       return res.status(200).json({
-            success:false,
-            message:"That QR Code Was Wronng !!"
-        })
-    }
-    if (!classDetails || !students) {
-        return ErrorHandler(res, "classDetails and students are required!");
-    }
-
-    // Further checks can be added based on the structure of classDetails and students
-    if (!classDetails.subjectName || !classDetails.starting || !classDetails.ending) {
-        return ErrorHandler(res, "Class details are incomplete!");
-    }
-
-    // Validate students array
-    if (!Array.isArray(students) || students.length === 0) {
-        return ErrorHandler(res, "No students found in the array!");
-    }
+export const GetClasses = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
     const student = await Student.findById(req.Id);
+    const Classes = await Class.find({ allStudent:{ $in: [student?.enrollmentNumber] }  });
 
-    // If all checks pass, continue processing
-    const isAvailable = students.includes(student?.enrollmentNumber);
-    if(isAvailable){
-        res.status(200).json({ success:true,message: "QR scanned successfully", data: { classDetails, students } })
+    const currentDateTime = moment(); // Current full timestamp
+
+    let upcomingClasses: any[] = [];
+
+    if (Classes) {
+        upcomingClasses = Classes.filter((i) => {
+            const classEndTime = moment(i.ending, "YYYY-MM-DD HH:mm"); // Full date-time
+            return classEndTime.isAfter(currentDateTime);
+        });
     }
-    
+
+    res.status(200).json({
+        success: true,
+        upcomingClasses
+    });
 });

@@ -67,7 +67,6 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("register-teacher" , (name:string)=>{
-    console.log("gf");
     
     TeacherSockets.set(name, socket.id);
     console.log(`Teacher Registered: ${name} -> ${socket.id}`);
