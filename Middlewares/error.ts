@@ -14,7 +14,6 @@ export const TryCatch = (func: ControllerType) => {
         await func(req, res, next);
       } catch (error) {
         console.log(error);
-        
         next(error);
       }
     };

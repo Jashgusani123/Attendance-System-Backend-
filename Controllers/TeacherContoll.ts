@@ -62,7 +62,7 @@ export const login = TryCatch(async (
                 user: teacher
             })
         } else {
-            ErrorHandler(res, "Email or Password or  Should be Wrong !!", 401);
+            ErrorHandler(res, "Email or Password Should be Wrong !!", 401);
         }
     } else {
         ErrorHandler(res, "Required AllFileds!!", 400);

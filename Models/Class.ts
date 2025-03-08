@@ -31,15 +31,15 @@ const ClassSchema = new Schema(
             required: true,
         },
         allStudent: {
-            type: [String], // Store Enrollment Numbers (Er. No) as Strings
+            type: [String], 
             required: true,
         },
         absentStudent: {
-            type: [String], // Store Enrollment Numbers (Er. No) as Strings
+            type: [String], 
             default: [],
         },
         presentStudent: {
-            type: [String], // Store Enrollment Numbers (Er. No) as Strings
+            type: [String], 
             default: [],
         },
         location:{

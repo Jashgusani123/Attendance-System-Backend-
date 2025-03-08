@@ -13,6 +13,7 @@ import { Response } from "express";
 import Student from "./Models/Student";
 import Teacher from "./Models/Teacher";
 import { Model } from 'mongoose';
+import NotificationRoute from './Routes/NotificationRoute'
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -114,6 +115,7 @@ io.on("connection", (socket: Socket) => {
 app.use("/student", StudetRoutes);
 app.use("/teacher", TeacherRoutes);
 app.use("/class" , ClassRoute)
+app.use("/notification" , NotificationRoute)
 app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     let model: Model<any> | null = null;

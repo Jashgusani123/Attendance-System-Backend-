@@ -10,6 +10,4 @@ app.post("/getliveclasses" , GetLiveClass)
 app.post("/getupcomingclasses" , GetUpcomingClass)
 app.post("/accept" , GetUser, Accept)
 
-
-
 export default app;
