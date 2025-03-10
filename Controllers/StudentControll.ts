@@ -125,3 +125,5 @@ export const GetClasses = TryCatch(async (req: AuthRequest, res: Response, next:
         upcomingClasses
     });
 });
+
+export const GetLastAttendance = TryCatch(async(req: AuthRequest, res: Response, next: NextFunction)=>{})

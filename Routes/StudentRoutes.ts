@@ -9,6 +9,7 @@ app.post("/login", login);
 app.get("/logout" , GetUser , Logout)
 app.get("/getclasses" , GetUser , GetClasses)
 app.get("/getstudent" , GetUser , getStudent)
+app.get("/totalattend" , GetUser )
 
 // app.get("/f" , IsLoggedin , f)
 
