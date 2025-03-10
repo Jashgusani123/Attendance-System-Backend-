@@ -24,11 +24,10 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-console.log(process.env.FRONTEND);
 
 
 app.use(cors({
-  origin: ["https://attendance-system-txfn.onrender.com", "http://localhost:5173" , "https://attendance-system-gold-six.vercel.app/"],
+  origin: ["https://attendance-system-txfn.onrender.com", "http://localhost:5173" , process.env.FRONTEND!],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
