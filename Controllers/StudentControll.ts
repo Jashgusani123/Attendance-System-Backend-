@@ -8,6 +8,7 @@ import CookieSender from '../Utils/CookieSender'
 import { AuthRequest } from '../Utils/Authentication';
 import moment from 'moment';
 import Class from '../Models/Class';
+import { GetLastDays } from '../Utils/GetDays';
 
 
 export const Register = TryCatch(
@@ -126,4 +127,46 @@ export const GetClasses = TryCatch(async (req: AuthRequest, res: Response, next:
     });
 });
 
-export const GetLastAttendance = TryCatch(async(req: AuthRequest, res: Response, next: NextFunction)=>{})
+export const GetLastAttendance = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.type === "Student" && req.Id) {
+        const student = await Student.findById(req.Id);
+        if (!student) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+
+        const enrollmentNumber = student.enrollmentNumber;
+        const last7DaysData: Array<{ date: string, totalClasses: number, yourAttendance: number }> = [];
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        for (let i = 1; i < 8; i++) {
+            const date = new Date();
+            date.setUTCDate(date.getUTCDate() - i);
+
+            const startOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0));
+            const endOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
+
+            const totalClasses = await Class.countDocuments({ createdAt: { $gte: startOfDay, $lt: endOfDay } });
+
+            const yourAttendance = await Class.countDocuments({
+                createdAt: { $gte: startOfDay, $lt: endOfDay },
+                presentStudent: { $in: [enrollmentNumber] }
+            });
+
+            let day = days[startOfDay.getDay()];
+
+            last7DaysData.push({
+                date:day, // Format as YYYY-MM-DD
+                totalClasses,
+                yourAttendance
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            last7DaysData
+        });
+    } else {
+        return res.status(400).json({ success: false, message: "Invalid request" });
+    }
+});
+
+

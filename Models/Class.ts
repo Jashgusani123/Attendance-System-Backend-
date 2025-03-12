@@ -80,6 +80,7 @@ export interface IClass extends Document {
     role: string;
     location:{ latitude: number; longitude: number };
     teacherName: string;
+    createdAt:Date
 }
 
 

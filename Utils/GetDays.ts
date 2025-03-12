@@ -4,12 +4,13 @@ export const GetLastDays = (num : number)=>{
     if(today.getDate() < num){
         endDay = num - today.getDate();
     }else{
-        endDay = today.getDate(); - num;
+        endDay = today.getDate() - num;
     }
 
-    const endDate = new Date(today.getFullYear() , today.getMonth() , endDay - 1);
+    const endDate = new Date(today.getFullYear() , today.getMonth() , endDay + 1);
     
     return endDate;
 
 }
+
 
