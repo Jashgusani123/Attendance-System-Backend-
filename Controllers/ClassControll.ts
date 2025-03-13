@@ -138,7 +138,12 @@ export const Accept = TryCatch(async (req: AuthRequest, res: Response, next: Nex
         } else {
             console.log("Teacher socket ID not found!");
         }
-        return res.status(202).json({ success: true, message: "Your Attendance Approved !!" });
+        const obj = {
+            subjectName:GetedClass.subjectName,
+            teacherName:teacher.fullName,
+            isPresent:true
+        }
+        return res.status(202).json({ success: true, data:obj });
     }
 
     if (!IsThisIsInAllStudent) {

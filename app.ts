@@ -73,7 +73,6 @@ io.on("connection", (socket: Socket) => {
 
   // Handle class going live
   socket.on("start-class", (students: string[], classDetails: object , classID:String) => {
-    console.log(students , classDetails);
     
     students.forEach(erno => {
       const studentSocketId = StudentSockets.get(erno);
@@ -89,7 +88,9 @@ io.on("connection", (socket: Socket) => {
       }
     });
   });
-
+  socket.on("attendance_approved" , (upperHeadding , description)=>{
+    io.to(socket.id).emit("Notification_of_attendance" , upperHeadding , description);
+  })
   // Handle disconnection
   socket.on("disconnect", () => {
     StudentSockets.forEach((id, erno) => {

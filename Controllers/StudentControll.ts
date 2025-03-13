@@ -159,10 +159,10 @@ export const GetLastAttendance = TryCatch(async (req: AuthRequest, res: Response
                 yourAttendance
             });
         }
-
+        
         return res.status(200).json({
             success: true,
-            last7DaysData
+            last7DaysData: last7DaysData.reverse()
         });
     } else {
         return res.status(400).json({ success: false, message: "Invalid request" });

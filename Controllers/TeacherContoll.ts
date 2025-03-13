@@ -188,7 +188,7 @@ export const GetOverview = TryCatch(async (req: AuthRequest, res: Response, next
 
         return res.status(200).json({
             success: true,
-            last7DaysData
+            last7DaysData:last7DaysData.reverse()
         });
     } else {
         return res.status(400).json({ success: false, message: "Invalid request" });
@@ -251,6 +251,7 @@ export const GenerateExcel = TryCatch(async (req: AuthRequest, res: Response, ne
                 student.fullName,                  // Student Name
                 student.enrollmentNumber,          // Student ER Number
                 isPresent ? "Present" : "Absent",  // Status
+                classes.semester,  // Semester
             ]);
         }
     }
@@ -272,51 +273,131 @@ export const GenerateExcel = TryCatch(async (req: AuthRequest, res: Response, ne
     await sheets.spreadsheets.values.update({
         auth,
         spreadsheetId, // ✅ Corrected from `spreadsheetsId`
-        range: "Sheet1!A1:F", // ✅ Corrected from `renge`
+        range: "Sheet1!A1:G", // ✅ Corrected from `renge`
         valueInputOption: "RAW",
-        requestBody: { values: [["Date", "Subject", "Teacher", "Student", "Enrollment", "Status"], ...fields] },
+        requestBody: { values: [["Date", "Subject", "Teacher", "Student", "Enrollment", "Status" , "Semester"], ...fields] },
     });
 
     res.status(200).json({ success: true, message: "Google Sheet updated successfully!" });
 });
 
 
-export const downloadSheet = TryCatch(async(req:Request , res:Response , next:NextFunction)=>{
+export const downloadSheet = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
     const auth = new google.auth.GoogleAuth({
-        keyFile: process.env.CREDENTIAL_FILE, // Your service account key
+        keyFile: process.env.CREDENTIAL_FILE,
         scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-      });
-      
-      const sheets = google.sheets({ version: "v4", auth });
-      
-      const SPREADSHEET_ID = "14bue8qzU8kb8mFlqYqpuTru5csirKCgMPe1GCMzo9oE";
-      const RANGE = "Sheet1!A1:F"; // Change based on your sheet range
-        try {
-          const response = await sheets.spreadsheets.values.get({
+    });
+
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const SPREADSHEET_ID = "14bue8qzU8kb8mFlqYqpuTru5csirKCgMPe1GCMzo9oE";
+    const RANGE = "Sheet1!A1:G"; // Adjust based on your data range
+
+    try {
+        const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: RANGE,
-          });
-      
-          const rows = response.data.values;
-          
-          if (!rows || rows.length === 0) {
+        });
+
+        const rows = response.data.values;
+        if (!rows || rows.length <= 1) {
             return res.status(404).send("No data found.");
-          }
-      
-          const workbook = new ExcelJS.Workbook();
-          const worksheet = workbook.addWorksheet("Attendance");
-      
-          worksheet.addRows(rows ?? []);
-      
-          const filePath = "attendance.xlsx";
-          await workbook.xlsx.writeFile(filePath);
-      
-          res.download(filePath, () => {
-            fs.unlinkSync(filePath);
-          });
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          res.status(500).send("Error generating file.");
         }
-      
-})
+
+        // Remove header row and process data
+        const data = rows.slice(1);
+        const groupedData: { [semester: string]: { [subject: string]: { teacher: string, date: string, students: any[][] } } } = {};
+
+        data.forEach((row) => {
+            const [date, subject, teacher, student, enrollment, status, semester] = row;
+
+            if (!groupedData[semester]) {
+                groupedData[semester] = {};
+            }
+            if (!groupedData[semester][subject]) {
+                groupedData[semester][subject] = { teacher, date, students: [] };
+            }
+
+            groupedData[semester][subject].students.push([student, enrollment, status]);
+        });
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Attendance");
+
+        // Set Column Widths
+        worksheet.getColumn(1).width = 25; // Student Name
+        worksheet.getColumn(2).width = 20; // Enrollment Number
+        worksheet.getColumn(3).width = 15; // Status
+
+        let rowNumber = 1;
+
+        Object.keys(groupedData).sort().forEach((semester) => {
+            worksheet.addRow([]); // Blank row before each semester
+
+            // Merging two columns for Semester title
+            const semesterRow = worksheet.addRow([`Semester ${semester}`, ""]);
+            worksheet.mergeCells(`A${rowNumber}:B${rowNumber}`);
+            semesterRow.font = { bold: true, size: 14 };
+            semesterRow.alignment = { horizontal: "center" };
+            rowNumber++;
+
+            Object.keys(groupedData[semester]).forEach((subject) => {
+                worksheet.addRow([]); // Blank row before each subject
+
+                const subjectRow = worksheet.addRow([
+                    `Subject: ${subject} (Teacher: ${groupedData[semester][subject].teacher}) - Date: ${groupedData[semester][subject].date}`
+                ]);
+                worksheet.mergeCells(`A${rowNumber}:C${rowNumber}`);
+                subjectRow.font = { bold: true, size: 12 };
+                subjectRow.alignment = { horizontal: "left" };
+                rowNumber++;
+
+                // Add student data headers
+                const headerRow = worksheet.addRow(["Student Name", "Enrollment Number", "Status"]);
+                headerRow.font = { bold: true };
+                headerRow.alignment = { horizontal: "center" };
+
+                groupedData[semester][subject].students.forEach((row) => {
+                    const studentRow = worksheet.addRow(row);
+                    
+                    // Apply conditional styling for status
+                    const statusCell = studentRow.getCell(3);
+                    if (row[2] === "Present") {
+                        statusCell.font = { color: { argb: "008000" } }; // Green text
+                        statusCell.border = {
+                            top: { style: "thin", color: { argb: "008000" } },
+                            left: { style: "thin", color: { argb: "008000" } },
+                            bottom: { style: "thin", color: { argb: "008000" } },
+                            right: { style: "thin", color: { argb: "008000" } },
+                        };
+                    } else if (row[2] === "Absent") {
+                        statusCell.font = { color: { argb: "FF0000" } }; // Red text
+                        statusCell.border = {
+                            top: { style: "thin", color: { argb: "FF0000" } },
+                            left: { style: "thin", color: { argb: "FF0000" } },
+                            bottom: { style: "thin", color: { argb: "FF0000" } },
+                            right: { style: "thin", color: { argb: "FF0000" } },
+                        };
+                    }
+
+                    rowNumber++;
+                });
+
+                rowNumber++;
+            });
+        });
+
+        // Generate file and send it
+        const filePath = "attendance.xlsx";
+        await workbook.xlsx.writeFile(filePath);
+
+        res.download(filePath, () => {
+            fs.unlinkSync(filePath);
+        });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).send("Error generating file.");
+    }
+});
+
