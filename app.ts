@@ -113,6 +113,7 @@ app.use("/student", StudetRoutes);
 app.use("/teacher", TeacherRoutes);
 app.use("/class" , ClassRoute)
 app.use("/notification" , NotificationRoute)
+
 app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     let model: Model<any> | null = null;
