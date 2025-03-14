@@ -1,5 +1,5 @@
 import express from "express";
-import {  GetClasses, getTeacher, login, Logout, Register, GetAllAttendance, GetOverview, GetLastsClasses, GenerateExcel, downloadSheet } from "../Controllers/TeacherContoll";
+import { GenerateExcel, GetAllAttendance, GetClasses, GetLastsClasses, GetOverview, getTeacher, login, Logout, Register } from "../Controllers/TeacherContoll";
 import { GetUser } from '../Utils/Authentication';
 
 const app = express();
@@ -13,6 +13,5 @@ app.post("/attendance"  , GetAllAttendance)
 app.get("/overview" , GetUser , GetOverview)
 app.get("/lastclasses" , GetUser , GetLastsClasses)
 app.post("/excelsheet" , GetUser , GenerateExcel)
-app.get("/download-sheet" , downloadSheet)
 
 export default app;
