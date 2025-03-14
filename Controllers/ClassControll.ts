@@ -19,13 +19,19 @@ export const CreateClass = TryCatch(async (
 
     const teacher = await Teacher.findById(req.Id);
 
-
+    console.log(teacher?.collegeName);
+    console.log(departmentName);
+    
+    Number(semester);
     const allStudents = await Student.find({
         collegeName: { $regex: new RegExp(`^${teacher?.collegeName}$`, "i") },
         departmentName: { $regex: new RegExp(`^${departmentName}$`, "i") },
         semester
     }).select("enrollmentNumber");
     console.log(allStudents);
+    console.log(semester);
+
+    
     
     const allStudent = allStudents.map(student => student.enrollmentNumber);
 
