@@ -25,7 +25,8 @@ export const CreateClass = TryCatch(async (
         departmentName: { $regex: new RegExp(`^${departmentName}$`, "i") },
         semester
     }).select("enrollmentNumber");
-
+    console.log(allStudents);
+    
     const allStudent = allStudents.map(student => student.enrollmentNumber);
 
     let newClass = await Class.create({
