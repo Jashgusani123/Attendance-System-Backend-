@@ -144,6 +144,8 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
 app.get("/", (req, res) => {
   res.send("Hello World from Vercel!👋🏻");
 });
+console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
 // Start Server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

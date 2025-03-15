@@ -256,7 +256,7 @@ export const GenerateExcel = TryCatch(async (req: AuthRequest, res: Response, ne
     if (fields.length === 0) {
         return res.status(404).json({ success: false, message: "No data available to add to Excel." });
     }
-
+    
     const auth = new google.auth.GoogleAuth({
         keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
         scopes: ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"],
