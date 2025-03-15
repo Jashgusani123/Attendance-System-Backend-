@@ -24,10 +24,12 @@ export const CreateClass = TryCatch(async (
     
     Number(semester);
     const allStudents = await Student.find({
-        collegeName: { $regex: new RegExp(`^${teacher?.collegeName}$`, "i") },
-        departmentName: { $regex: new RegExp(`^${departmentName}$`, "i") },
-        semester
-    }).select("enrollmentNumber");
+        collegeName: { $eq: teacher?.collegeName }, 
+        departmentName: { $eq: departmentName }, 
+        semester: Number(semester)
+    }).collation({ locale: "en", strength: 2 }) // Case-insensitive matching
+    .select("enrollmentNumber");
+    
     console.log(allStudents);
     console.log(semester);
 
