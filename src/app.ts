@@ -14,6 +14,7 @@ import Student from "./Models/Student";
 import Teacher from "./Models/Teacher";
 import { Model } from 'mongoose';
 import NotificationRoute from './Routes/NotificationRoute'
+import { setupGoogleCredentials } from "./config/setupGCP";
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -23,8 +24,6 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-
-
 
 app.use(cors({
   origin: ["https://attendance-system-txfn.onrender.com", "http://192.168.0.192:5173/", "http://localhost:5173" , process.env.FRONTEND!],
@@ -38,7 +37,7 @@ app.use(cookieParser());
 
 // Connect to MongoDB
 connectDB();
-
+setupGoogleCredentials();
 // Create HTTP Server for Socket.IO
 const server = createServer(app);
 const io = new Server(server, {

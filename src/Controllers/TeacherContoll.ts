@@ -258,7 +258,7 @@ export const GenerateExcel = TryCatch(async (req: AuthRequest, res: Response, ne
     }
     
     const auth = new google.auth.GoogleAuth({
-        keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        keyFile: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS as string),
         scopes: ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"],
     });
 
