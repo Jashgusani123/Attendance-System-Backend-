@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/app.js",
      "dev": "node --watch dist/app.js",
-    "build": "tsc"
+    "build": "tsc",
+    "vercel-build": "npm run build"
   },
   "keywords": [],
   "author": "",
