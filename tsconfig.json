@@ -6,13 +6,17 @@
     "skipLibCheck": true,
     "strict": true,
     "outDir": "dist",
-    "rootDir": "./",
-    "types": ["node", "express"]
+    "rootDir": "src",
+    "types": ["node", "express"],
+    "forceConsistentCasingInFileNames": true, 
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
-    "**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

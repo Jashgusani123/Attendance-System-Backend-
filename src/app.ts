@@ -142,7 +142,7 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
   }
 });
 app.get("/", (req, res) => {
-  res.send("Hello World from Vercel!");
+  res.send("Hello World from Vercel!👋🏻");
 });
 // Start Server
 server.listen(PORT, () => {

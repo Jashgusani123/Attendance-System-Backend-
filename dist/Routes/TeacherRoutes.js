@@ -1,0 +1,19 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const TeacherContoll_1 = require("../Controllers/TeacherContoll");
+const Authentication_1 = require("../Utils/Authentication");
+const app = (0, express_1.default)();
+app.post("/register", TeacherContoll_1.Register);
+app.post("/login", TeacherContoll_1.login);
+app.get("/logout", Authentication_1.GetUser, TeacherContoll_1.Logout);
+app.get("/getclasses", Authentication_1.GetUser, TeacherContoll_1.GetClasses);
+app.get("/getteacher", Authentication_1.GetUser, TeacherContoll_1.getTeacher);
+app.post("/attendance", TeacherContoll_1.GetAllAttendance);
+app.get("/overview", Authentication_1.GetUser, TeacherContoll_1.GetOverview);
+app.get("/lastclasses", Authentication_1.GetUser, TeacherContoll_1.GetLastsClasses);
+app.post("/excelsheet", Authentication_1.GetUser, TeacherContoll_1.GenerateExcel);
+exports.default = app;
