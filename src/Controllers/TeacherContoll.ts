@@ -20,6 +20,10 @@ export const Register = TryCatch(
         const { fullName, email, password, departmentName, collegeName } = req.body;
 
         if (fullName && email && password && departmentName && collegeName && password.length >= 6) {
+            const isTeacher = await Teacher.find({ email: email });
+            if (isTeacher) {
+                return ErrorHandler(res, "This Account Allready Created!! ");
+            }
             const teacher = await Teacher.create({
                 fullName,
                 email,
@@ -133,12 +137,12 @@ export const GetAllAttendance = TryCatch(async (req: Request, res: Response, nex
     const allAttendance = [
         ...GettedClass.presentStudent.map((student: any, index: number) => ({
             id: index + 1,
-            erno:student,
-            isPresent:true
+            erno: student,
+            isPresent: true
         })),
         ...GettedClass.absentStudent.map((student: any, index: number) => ({
             id: GettedClass.presentStudent.length + index + 1,
-            erno:student,
+            erno: student,
             status: false
         }))
     ];
@@ -166,13 +170,13 @@ export const GetOverview = TryCatch(async (req: AuthRequest, res: Response, next
             const startOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0));
             const endOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
 
-            const allClasses = await Class.find({createdAt: { $gte: startOfDay, $lt: endOfDay } , createdBy:req.Id });
+            const allClasses = await Class.find({ createdAt: { $gte: startOfDay, $lt: endOfDay }, createdBy: req.Id });
 
             const totalClasses = allClasses.length;
 
-            const studentsAttended = allClasses.reduce((count , classs) => count + (classs.presentStudent.length | 0) , 0);
+            const studentsAttended = allClasses.reduce((count, classs) => count + (classs.presentStudent.length | 0), 0);
 
-            const totalStudents = allClasses.reduce((count , classs) => count + (classs.allStudent.length | 0) , 0);
+            const totalStudents = allClasses.reduce((count, classs) => count + (classs.allStudent.length | 0), 0);
 
             const day = days[startOfDay.getUTCDay()];
 
@@ -186,7 +190,7 @@ export const GetOverview = TryCatch(async (req: AuthRequest, res: Response, next
 
         return res.status(200).json({
             success: true,
-            last7DaysData:last7DaysData.reverse()
+            last7DaysData: last7DaysData.reverse()
         });
     } else {
         return res.status(400).json({ success: false, message: "Invalid request" });
@@ -203,7 +207,7 @@ export const GetLastsClasses = TryCatch(async (req: AuthRequest, res: Response, 
             createdBy: req.Id,
             createdAt: { $gte: startOfDay, $lt: endOfDay }
         })
-        .select("subjectName starting ending") ;     // Populate 'starting' and 'ending' fields
+            .select("subjectName starting ending");     // Populate 'starting' and 'ending' fields
 
         if (!allClasses || allClasses.length === 0) {
             return ErrorHandler(res, "Classes Not Found!!");
@@ -256,12 +260,12 @@ export const GenerateExcel = TryCatch(async (req: AuthRequest, res: Response, ne
     if (fields.length === 0) {
         return res.status(404).json({ success: false, message: "No data available to add to Excel." });
     }
-    
+
     const auth = new google.auth.GoogleAuth({
         keyFile: "/opt/render/project/src/src/gcp-credentials.json",  // Just pass the file path
         scopes: ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"],
     });
-    
+
 
     const drive = google.drive({ version: "v3", auth });
     const sheets = google.sheets({ version: "v4", auth });
@@ -303,7 +307,7 @@ export const GenerateExcel = TryCatch(async (req: AuthRequest, res: Response, ne
     }
 
 
-    
+
     const existingData = await sheets.spreadsheets.values.get({
         spreadsheetId: finalSpreadsheetId,
         range: `${sheetName}!A:A`,

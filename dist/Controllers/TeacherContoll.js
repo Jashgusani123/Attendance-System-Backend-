@@ -25,6 +25,10 @@ const ErrorHandling_1 = require("../Utils/ErrorHandling");
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { fullName, email, password, departmentName, collegeName } = req.body;
     if (fullName && email && password && departmentName && collegeName && password.length >= 6) {
+        const isTeacher = yield Teacher_1.default.find({ email: email });
+        if (isTeacher) {
+            return (0, ErrorHandling_1.ErrorHandler)(res, "This Account Allready Created!! ");
+        }
         const teacher = yield Teacher_1.default.create({
             fullName,
             email,
@@ -219,7 +223,7 @@ exports.GenerateExcel = (0, error_1.TryCatch)((req, res, next) => __awaiter(void
         return res.status(404).json({ success: false, message: "No data available to add to Excel." });
     }
     const auth = new googleapis_1.google.auth.GoogleAuth({
-        keyFile: process.env.CREDENTIAL_FILE,
+        keyFile: "/opt/render/project/src/src/gcp-credentials.json", // Just pass the file path
         scopes: ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"],
     });
     const drive = googleapis_1.google.drive({ version: "v3", auth });

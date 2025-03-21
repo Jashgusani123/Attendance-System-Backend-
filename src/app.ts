@@ -1,20 +1,19 @@
-import express from "express";
-import dotenv from "dotenv";
+import cookieParser from 'cookie-parser';
 import cors from "cors";
-import { createServer } from "http";  // Import for creating an HTTP server
+import dotenv from "dotenv";
+import express, { Response } from "express";
+import { createServer } from "http"; // Import for creating an HTTP server
+import { Model } from 'mongoose';
 import { Server, Socket } from "socket.io";
 import connectDB from "./config/ConnectDB";
-import StudetRoutes from './Routes/StudentRoutes';
-import TeacherRoutes from './Routes/TeacherRoutes';
-import ClassRoute from './Routes/ClassRoute';
-import cookieParser from 'cookie-parser';
-import { GetUser, AuthRequest } from "./Utils/Authentication";
-import { Response } from "express";
 import Student from "./Models/Student";
 import Teacher from "./Models/Teacher";
-import { Model } from 'mongoose';
-import NotificationRoute from './Routes/NotificationRoute'
-import { setupGoogleCredentials } from "./config/setupGCP";
+import ClassRoute from './Routes/ClassRoute';
+import NotificationRoute from './Routes/NotificationRoute';
+import StudetRoutes from './Routes/StudentRoutes';
+import TeacherRoutes from './Routes/TeacherRoutes';
+import RequestRoutes from './Routes/RequestRoute';
+import { AuthRequest, GetUser } from "./Utils/Authentication";
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -37,7 +36,7 @@ app.use(cookieParser());
 
 // Connect to MongoDB
 connectDB();
-setupGoogleCredentials();
+// setupGoogleCredentials();
 // Create HTTP Server for Socket.IO
 const server = createServer(app);
 const io = new Server(server, {
@@ -51,45 +50,44 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
 const StudentSockets = new Map<string, string>();
 const TeacherSockets = new Map<string, string>();
+
 // Socket.IO Connection
 io.on("connection", (socket: Socket) => {
   console.log(`⚡ New Client Connected: ${socket.id}`);
 
   // Store student erno when they join
   socket.on("register-student", (erno: string) => {
-    
     StudentSockets.set(erno, socket.id);
     console.log(`Student Registered: ${erno} -> ${socket.id}`);
   });
 
+
   socket.on("register-teacher" , (name:string)=>{
-    
     TeacherSockets.set(name, socket.id);
     console.log(`Teacher Registered: ${name} -> ${socket.id}`);
   })
 
   // Handle class going live
   socket.on("start-class", (students: string[], classDetails: object , classID:String) => {
-    
     students.forEach(erno => {
       const studentSocketId = StudentSockets.get(erno);
-      
       if (studentSocketId) {
         io.to(studentSocketId).emit("class-live", classDetails,classID);
         console.log(`📢 Class Live Notification sent to: ${erno}`);
       }
       if(socket){
-        console.log(socket.id);
-        
         io.to(socket.id).emit("class-live", classDetails)
       }
     });
   });
+
   socket.on("attendance_approved" , (upperHeadding , description)=>{
     io.to(socket.id).emit("Notification_of_attendance" , upperHeadding , description);
   })
+
   // Handle disconnection
   socket.on("disconnect", () => {
     StudentSockets.forEach((id, erno) => {
@@ -99,6 +97,7 @@ io.on("connection", (socket: Socket) => {
       }
     });
   });
+
   socket.on("disconnect", () => {
     TeacherSockets.forEach((id, name) => {
       if (id === socket.id) {
@@ -107,13 +106,18 @@ io.on("connection", (socket: Socket) => {
       }
     });
   });
+
 });
 
 // Routes
+app.get("/", (req, res) => {
+  res.send("Hello World from Vercel!👋🏻");
+});
 app.use("/student", StudetRoutes);
 app.use("/teacher", TeacherRoutes);
 app.use("/class" , ClassRoute)
 app.use("/notification" , NotificationRoute)
+app.use("/request" , RequestRoutes)
 
 app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -140,14 +144,10 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-app.get("/", (req, res) => {
-  res.send("Hello World from Vercel!👋🏻");
-});
-console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 // Start Server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
-export {io,server , TeacherSockets}
+export { io, server, TeacherSockets };

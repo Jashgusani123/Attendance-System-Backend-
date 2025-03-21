@@ -13,20 +13,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeacherSockets = exports.server = exports.io = void 0;
-const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const express_1 = __importDefault(require("express"));
 const http_1 = require("http"); // Import for creating an HTTP server
 const socket_io_1 = require("socket.io");
 const ConnectDB_1 = __importDefault(require("./config/ConnectDB"));
-const StudentRoutes_1 = __importDefault(require("./Routes/StudentRoutes"));
-const TeacherRoutes_1 = __importDefault(require("./Routes/TeacherRoutes"));
-const ClassRoute_1 = __importDefault(require("./Routes/ClassRoute"));
-const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const Authentication_1 = require("./Utils/Authentication");
 const Student_1 = __importDefault(require("./Models/Student"));
 const Teacher_1 = __importDefault(require("./Models/Teacher"));
+const ClassRoute_1 = __importDefault(require("./Routes/ClassRoute"));
 const NotificationRoute_1 = __importDefault(require("./Routes/NotificationRoute"));
+const StudentRoutes_1 = __importDefault(require("./Routes/StudentRoutes"));
+const TeacherRoutes_1 = __importDefault(require("./Routes/TeacherRoutes"));
+const RequestRoute_1 = __importDefault(require("./Routes/RequestRoute"));
+const Authentication_1 = require("./Utils/Authentication");
 dotenv_1.default.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
 // Initialize Express App
@@ -42,6 +43,7 @@ app.use((0, cors_1.default)({
 app.use((0, cookie_parser_1.default)());
 // Connect to MongoDB
 (0, ConnectDB_1.default)();
+// setupGoogleCredentials();
 // Create HTTP Server for Socket.IO
 const server = (0, http_1.createServer)(app);
 exports.server = server;
@@ -81,7 +83,6 @@ io.on("connection", (socket) => {
                 console.log(`📢 Class Live Notification sent to: ${erno}`);
             }
             if (socket) {
-                console.log(socket.id);
                 io.to(socket.id).emit("class-live", classDetails);
             }
         });
@@ -108,10 +109,14 @@ io.on("connection", (socket) => {
     });
 });
 // Routes
+app.get("/", (req, res) => {
+    res.send("Hello World from Vercel!👋🏻");
+});
 app.use("/student", StudentRoutes_1.default);
 app.use("/teacher", TeacherRoutes_1.default);
 app.use("/class", ClassRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
+app.use("/request", RequestRoute_1.default);
 app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let model = null;
@@ -136,9 +141,6 @@ app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, vo
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 }));
-app.get("/", (req, res) => {
-    res.send("Hello World from Vercel!👋🏻");
-});
 // Start Server
 server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
