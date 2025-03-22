@@ -13,6 +13,7 @@ import NotificationRoute from './Routes/NotificationRoute';
 import StudetRoutes from './Routes/StudentRoutes';
 import TeacherRoutes from './Routes/TeacherRoutes';
 import RequestRoutes from './Routes/RequestRoute';
+import AdminRoutes from './Routes/AdminRoute';
 import { AuthRequest, GetUser } from "./Utils/Authentication";
 
 dotenv.config(); // Load environment variables
@@ -115,9 +116,10 @@ app.get("/", (req, res) => {
 });
 app.use("/student", StudetRoutes);
 app.use("/teacher", TeacherRoutes);
-app.use("/class" , ClassRoute)
-app.use("/notification" , NotificationRoute)
-app.use("/request" , RequestRoutes)
+app.use("/class" , ClassRoute);
+app.use("/notification" , NotificationRoute);
+app.use("/request" , RequestRoutes);
+app.use("/admin" , AdminRoutes);
 
 app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<void> => {
   try {

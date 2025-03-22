@@ -1,14 +1,13 @@
-import Student, { IStudent } from '../Models/Student'
-import { NextFunction, Request, Response } from 'express';
-import { TryCatch } from '../Middlewares/error';
-import { NewStudent, StudentLogin, GetStudent } from '../Types/StudentType';
-import { ErrorHandler } from '../Utils/ErrorHandling'
 import bcrypt from 'bcryptjs';
-import CookieSender from '../Utils/CookieSender'
-import { AuthRequest } from '../Utils/Authentication';
+import { NextFunction, Request, Response } from 'express';
 import moment from 'moment';
+import { TryCatch } from '../Middlewares/error';
 import Class from '../Models/Class';
-import { GetLastDays } from '../Utils/GetDays';
+import Student, { IStudent } from '../Models/Student';
+import { NewStudent, StudentLogin } from '../Types/StudentType';
+import { AuthRequest } from '../Utils/Authentication';
+import CookieSender from '../Utils/CookieSender';
+import { ErrorHandler } from '../Utils/ErrorHandling';
 
 
 export const Register = TryCatch(
@@ -36,7 +35,7 @@ export const Register = TryCatch(
                 message: `Register Commpleted !! ${student.fullName}`,
                 user: student,
             });
-        } else if (password.length < 6) {
+        } else if (password.length <= 6) {
             ErrorHandler(res, "Password Should be 6 length", 411);
         }
         else {
@@ -64,7 +63,6 @@ export const login = TryCatch(async (
                 user: student
             })
         } else {
-            console.log(trueEnrollmentNumber, truePassword);
 
             ErrorHandler(res, "Email or Password or EnrollmentNumber Should be Wrong !!", 401);
         }

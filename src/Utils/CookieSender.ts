@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 
 
-const cookieSender = (res: Response, Id:string , type:string): void => {
+const cookieSender = (res: Response, Id:string , type?:string): void => {
 
   const token = jwt.sign({ _id: Id }, process.env.JWT_SECRET!);
 

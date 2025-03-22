@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetLastAttendance = exports.GetClasses = exports.getStudent = exports.Logout = exports.f = exports.login = exports.Register = void 0;
-const Student_1 = __importDefault(require("../Models/Student"));
-const error_1 = require("../Middlewares/error");
-const ErrorHandling_1 = require("../Utils/ErrorHandling");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const CookieSender_1 = __importDefault(require("../Utils/CookieSender"));
 const moment_1 = __importDefault(require("moment"));
+const error_1 = require("../Middlewares/error");
 const Class_1 = __importDefault(require("../Models/Class"));
+const Student_1 = __importDefault(require("../Models/Student"));
+const CookieSender_1 = __importDefault(require("../Utils/CookieSender"));
+const ErrorHandling_1 = require("../Utils/ErrorHandling");
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { fullName, email, password, semester, departmentName, enrollmentNumber, collegeName, collegeJoiningDate } = req.body;
     if (fullName && email && password && semester && departmentName && enrollmentNumber && collegeName && collegeJoiningDate && password.length >= 6) {
@@ -40,7 +40,7 @@ exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, v
             user: student,
         });
     }
-    else if (password.length < 6) {
+    else if (password.length <= 6) {
         (0, ErrorHandling_1.ErrorHandler)(res, "Password Should be 6 length", 411);
     }
     else {
@@ -62,7 +62,6 @@ exports.login = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void
             });
         }
         else {
-            console.log(trueEnrollmentNumber, truePassword);
             (0, ErrorHandling_1.ErrorHandler)(res, "Email or Password or EnrollmentNumber Should be Wrong !!", 401);
         }
     }
