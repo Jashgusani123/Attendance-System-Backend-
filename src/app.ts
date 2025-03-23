@@ -8,6 +8,7 @@ import { Server, Socket } from "socket.io";
 import connectDB from "./config/ConnectDB";
 import Student from "./Models/Student";
 import Teacher from "./Models/Teacher";
+import Admin from "./Models/Admin";
 import ClassRoute from './Routes/ClassRoute';
 import NotificationRoute from './Routes/NotificationRoute';
 import StudetRoutes from './Routes/StudentRoutes';
@@ -112,7 +113,7 @@ io.on("connection", (socket: Socket) => {
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Hello World from Vercel!👋🏻");
+  res.send("Hello World from Server!👋🏻");
 });
 app.use("/student", StudetRoutes);
 app.use("/teacher", TeacherRoutes);
@@ -128,6 +129,8 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
       model = Student;
     } else if (req.type === "Teacher") {
       model = Teacher;
+    } else if (req.type === "Admin"){
+      model = Admin;
     }
 
     if (!model || !req.Id) {

@@ -22,6 +22,7 @@ const socket_io_1 = require("socket.io");
 const ConnectDB_1 = __importDefault(require("./config/ConnectDB"));
 const Student_1 = __importDefault(require("./Models/Student"));
 const Teacher_1 = __importDefault(require("./Models/Teacher"));
+const Admin_1 = __importDefault(require("./Models/Admin"));
 const ClassRoute_1 = __importDefault(require("./Routes/ClassRoute"));
 const NotificationRoute_1 = __importDefault(require("./Routes/NotificationRoute"));
 const StudentRoutes_1 = __importDefault(require("./Routes/StudentRoutes"));
@@ -111,7 +112,7 @@ io.on("connection", (socket) => {
 });
 // Routes
 app.get("/", (req, res) => {
-    res.send("Hello World from Vercel!👋🏻");
+    res.send("Hello World from Server!👋🏻");
 });
 app.use("/student", StudentRoutes_1.default);
 app.use("/teacher", TeacherRoutes_1.default);
@@ -127,6 +128,9 @@ app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, vo
         }
         else if (req.type === "Teacher") {
             model = Teacher_1.default;
+        }
+        else if (req.type === "Admin") {
+            model = Admin_1.default;
         }
         if (!model || !req.Id) {
             res.status(400).json({ message: "Invalid user type or ID" });

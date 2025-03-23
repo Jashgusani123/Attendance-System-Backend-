@@ -4,6 +4,7 @@ import { ErrorHandler } from "../Utils/ErrorHandling";
 import Admin from "../Models/Admin";
 import cookieSender from "../Utils/CookieSender";
 import { sendEmail } from "../Utils/SendEmail";
+import bcrypt from 'bcryptjs';
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
@@ -52,18 +53,48 @@ Attendance System Team `;
     })
 });
 
-export const login = TryCatch(async(req:Request , res:Response)=>{
-    const {email , password , secretKey} = req.body;
+export const login = TryCatch(async (req: Request, res: Response) => {
+    const { email, password, secretKey } = req.body;
 
-    if(email && password && secretKey){
-        const getUser = await Admin.findOne({email:email});
-        if(getUser){
-            cookieSender(res, getUser._id.toString());
-            res.status(200).json({
-                success:true,
-                message:`Wellcome ${getUser.fullName}`
-            })
+    if (email && password && secretKey) {
+        const getUser = await Admin.findOne({ email: email });
+        if (getUser) {
+            const compareSecretKey = getUser?.secretKey === secretKey;
+            const comparePassword = await bcrypt.compare(password, getUser?.password);
+            if(comparePassword && compareSecretKey){
+                cookieSender(res, getUser._id.toString());
+                res.status(200).json({
+                    success: true,
+                    message: `Wellcome ${getUser.fullName}`,
+                    user:getUser
+                })
+            }else if(!compareSecretKey){
+                return ErrorHandler(res , "Enter Valid SecretKey !!", 404);
+            }else{
+                return ErrorHandler(res , "Email OR Password Worng !!" , 404);
+            }
+            
+        }else{
+            return ErrorHandler(res , "Email OR Password Worng !!" , 404);
         }
+    }else{
+        return ErrorHandler(res , "Requird All Fileds ...")
     }
 
-})
+});
+
+export const Logout = TryCatch(async (req: Request, res: Response) => {
+    const cookieOptions = {
+        maxAge: 0, // Expire immediately
+        sameSite: "none" as const,
+        httpOnly: true,
+        secure: true,
+    };
+
+    res.cookie("Admin", "", cookieOptions);
+
+    res.status(200).json({
+        success: true,
+        message: "Logout Done!!",
+    });
+});

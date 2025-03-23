@@ -38,7 +38,7 @@ const AdminSchema = new Schema({
 export interface IAdmin extends Document{
     fullName:String;
     email:String;
-    password:String;
+    password:string;
     collegeName:String;
     departmentName:String;
     _id:String;
