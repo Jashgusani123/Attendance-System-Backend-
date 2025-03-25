@@ -14,29 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetUser = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-// export const IsLoggedin = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-//   try {
-//     const token = req.cookies?.["Access"]; // Ensure `req.cookies` exists
-//     if (!token) {
-//       res.status(401).json({ message: "Unauthorized: No token provided" });
-//       return; // Ensures function stops execution
-//     }
-//     // Ensure JWT_SECRET is defined
-//     if (!process.env.JWT_SECRET) {
-//       console.error("JWT_SECRET is missing from environment variables.");
-//       res.status(500).json({ message: "Internal Server Error: Missing JWT_SECRET" });
-//       return; // Ensures function stops execution
-//     }
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET) as { _id: string };
-//     req.Id = decoded._id; // Assign user ID from token
-//     req.isLoggedIn = true;
-//     next(); // Ensure function proceeds to next middleware
-//   } catch (error) {
-//     console.error("JWT Verification Error:", error);
-//     res.status(401).json({ message: "Unauthorized: Invalid token" });
-//     return; // Ensures function stops execution
-//   }
-// };
 const GetUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {

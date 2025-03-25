@@ -5,6 +5,9 @@ import Admin from "../Models/Admin";
 import cookieSender from "../Utils/CookieSender";
 import { sendEmail } from "../Utils/SendEmail";
 import bcrypt from 'bcryptjs';
+import { AuthRequest } from "../Utils/Authentication";
+import Student from "../Models/Student";
+import Class from "../Models/Class";
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
@@ -55,30 +58,30 @@ Attendance System Team `;
 
 export const login = TryCatch(async (req: Request, res: Response) => {
     const { email, password, secretKey } = req.body;
-
+    
     if (email && password && secretKey) {
         const getUser = await Admin.findOne({ email: email });
         if (getUser) {
             const compareSecretKey = getUser?.secretKey === secretKey;
             const comparePassword = await bcrypt.compare(password, getUser?.password);
-            if(comparePassword && compareSecretKey){
+            if (comparePassword && compareSecretKey) {
                 cookieSender(res, getUser._id.toString());
                 res.status(200).json({
                     success: true,
                     message: `Wellcome ${getUser.fullName}`,
-                    user:getUser
+                    user: getUser
                 })
-            }else if(!compareSecretKey){
-                return ErrorHandler(res , "Enter Valid SecretKey !!", 404);
-            }else{
-                return ErrorHandler(res , "Email OR Password Worng !!" , 404);
+            } else if (!compareSecretKey) {
+                return ErrorHandler(res, "Enter Valid SecretKey !!", 404);
+            } else {
+                return ErrorHandler(res, "Email OR Password Worng !!", 404);
             }
-            
-        }else{
-            return ErrorHandler(res , "Email OR Password Worng !!" , 404);
+
+        } else {
+            return ErrorHandler(res, "Email OR Password Worng !!", 404);
         }
-    }else{
-        return ErrorHandler(res , "Requird All Fileds ...")
+    } else {
+        return ErrorHandler(res, "Requird All Fileds ...")
     }
 
 });
@@ -98,3 +101,42 @@ export const Logout = TryCatch(async (req: Request, res: Response) => {
         message: "Logout Done!!",
     });
 });
+
+export const GetAllStudents = TryCatch(async (req: AuthRequest, res: Response) => {
+    const isAdmin = await Admin.findById(req.Id);
+    if (!isAdmin) {
+        return ErrorHandler(res, "Something Went Wrong !!", 404);
+    }
+    const GetAllStudents = await Student.find({ departmentName: isAdmin.departmentName, collegeName: isAdmin.collegeName });
+
+    const StudentData = [];
+
+    for (const i of GetAllStudents) {
+        const allClasses = await Class.find({ allStudent: { $in: [i.enrollmentNumber] } }).countDocuments();
+        const presentClasses = await Class.find({ presentStudent: { $in: [i.enrollmentNumber] } }).countDocuments();
+
+        let presentPercentage: number = Number((presentClasses / allClasses) * 100);
+        let absentPercentage = 100 - presentPercentage;
+
+        if(!presentPercentage && !absentPercentage){
+            presentPercentage = 0;
+            absentPercentage = 0;
+        }
+
+        StudentData.push({
+            fullName: i.fullName,
+            enrollmentNumber: i.enrollmentNumber,
+            departmentName: i.departmentName,
+            semester: i.semester,
+            present: Math.round(presentPercentage),
+            absent: Math.round(absentPercentage)
+        });
+    }
+
+    res.status(200).json({
+        success:true,
+        StudentData
+    })
+
+
+})
