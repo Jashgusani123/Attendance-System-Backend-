@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 import { AuthRequest } from "../Utils/Authentication";
 import Student from "../Models/Student";
 import Class from "../Models/Class";
+import Teacher from "../Models/Teacher";
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
@@ -139,4 +140,27 @@ export const GetAllStudents = TryCatch(async (req: AuthRequest, res: Response) =
     })
 
 
+});
+
+export const GetAllTeachers = TryCatch(async(req:AuthRequest , res:Response)=>{
+    const isAdmin = await Admin.findById(req.Id);
+    if(!isAdmin){
+        return ErrorHandler(res , "Something Went Wrong !! (147)" , 404)
+    }
+     
+    const AllTeachersData = await Teacher.find({departmentName:isAdmin.departmentName , collegeName:isAdmin.collegeName});
+    const allTeachers = [];
+
+    for (const i of AllTeachersData){
+        allTeachers.push({
+            fullName:i.fullName,
+            avatarName:i.fullName.split(" ").map(word => word[0]).join("").toUpperCase(),
+            _id:i._id
+        });
+    }
+
+    res.status(200).json({
+        success:true,
+        TeacherData:allTeachers
+    });
 })
