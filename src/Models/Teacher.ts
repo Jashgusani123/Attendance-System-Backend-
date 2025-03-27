@@ -44,6 +44,7 @@ export interface ITeacher extends Document {
   collegeName: string;
   departmentName: string;
   role: string;
+  createdAt?:Date
 }
 
 // Hash password before saving

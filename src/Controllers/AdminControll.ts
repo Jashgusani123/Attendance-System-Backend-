@@ -9,6 +9,7 @@ import { AuthRequest } from "../Utils/Authentication";
 import Student from "../Models/Student";
 import Class from "../Models/Class";
 import Teacher from "../Models/Teacher";
+import moment from "moment";
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
@@ -163,4 +164,30 @@ export const GetAllTeachers = TryCatch(async(req:AuthRequest , res:Response)=>{
         success:true,
         TeacherData:allTeachers
     });
+});
+
+export const GetTeacherInfoFromId = TryCatch(async(req:Request , res:Response)=>{
+    const {_id} = req.body;
+
+    if(!_id){
+        return ErrorHandler(res , "we Can't Get Propar Data !! (172)" , 404)
+    }
+
+    const teacher = await Teacher.findById(_id);
+    if(!teacher){
+        return ErrorHandler(res , "We Can't Get Proper Date !! (178)" , 404);
+    }
+    const object = {
+        fullName:teacher?.fullName,
+        departmentName:teacher?.departmentName,
+        email:teacher?.email,
+        collegeJoiningData:moment(teacher?.createdAt).format("D/M/YYYY"),
+        avatarName:teacher.fullName.split(" ").map(word => word[0]).join("").toUpperCase()
+    }
+
+    res.status(200).json({
+        success:true,
+        teacherInfo:object
+    })
+
 })
