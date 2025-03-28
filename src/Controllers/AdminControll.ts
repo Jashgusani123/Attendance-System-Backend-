@@ -190,4 +190,40 @@ export const GetTeacherInfoFromId = TryCatch(async(req:Request , res:Response)=>
         teacherInfo:object
     })
 
-})
+});
+
+export const GetPersentagesOFPresentAbsentIn7Days = TryCatch(async(req:Request , res:Response)=>{
+    const {Id} = req.body;
+    if(!Id) return ErrorHandler(res, "Server Can't Get Proper Data (197)");
+
+    // const isTeacher = await Teacher.findById(Id);
+    // if(!isTeacher) return ErrorHandler(res , "Teacher Not Found (200)" , 404);
+
+    const AllClassesOf7Days = await Class.find({createdBy:Id});
+
+    if(AllClassesOf7Days.length < 0){
+        return ErrorHandler(res , "Not Any Classes (205)" , 400)
+    }
+
+    let TotalStudents = 0;
+    let PresentStudents = 0;
+    let AbsentStudents = 0;
+
+    AllClassesOf7Days.forEach((currentClass)=>{
+        TotalStudents += currentClass.allStudent.length;
+        PresentStudents += currentClass.presentStudent.length;
+        // AbsentStudents += currentClass.absentStudent.length;
+        AbsentStudents = TotalStudents - PresentStudents;
+    })
+
+    res.status(200).json({
+        success:true,
+        APData:{TotalStudents , PresentStudents , AbsentStudents}
+    })
+    
+});
+
+// export const Get7DaysData = TryCatch(async(req:Request , res:Response )=>{
+//     const {Id} = req.body;
+//     if(!Id)return ErrorHandler(res , "Server Can't Get Data (228)" , 404);
+//  })
