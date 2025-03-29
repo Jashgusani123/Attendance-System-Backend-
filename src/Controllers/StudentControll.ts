@@ -16,7 +16,7 @@ export const Register = TryCatch(
         res: Response,
         next: NextFunction
     ) => {
-        const { fullName, email, password, semester, departmentName, enrollmentNumber, collegeName, collegeJoiningDate } = req.body;
+        const { fullName, email, password, semester, departmentName, enrollmentNumber, collegeName, collegeJoiningDate, gender } = req.body;
 
         if (fullName && email && password && semester && departmentName && enrollmentNumber && collegeName && collegeJoiningDate && password.length >= 6) {
             const student = await Student.create({
@@ -27,7 +27,8 @@ export const Register = TryCatch(
                 departmentName,
                 enrollmentNumber,
                 collegeName,
-                collegeJoiningDate
+                collegeJoiningDate,
+                gender
             }) as IStudent;
             CookieSender(res, student._id.toString(), "Student")
             res.status(201).json({

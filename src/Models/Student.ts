@@ -40,6 +40,11 @@ const StudentSchema = new Schema({
     type: Date,
     required: true,
   },
+  gender: {
+    type: String,
+    enum:["male" , "female"],
+    required: true,
+  },
   role: {
     type: String,
     enum: ["student"],
@@ -58,6 +63,7 @@ export interface IStudent extends Document {
   semester: number;
   collegeJoiningDate: string;
   role: string;
+  gender:string
 }
 
 // Hash password before saving

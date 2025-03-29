@@ -86,6 +86,11 @@ const StudentSchema = new mongoose_1.Schema({
         type: Date,
         required: true,
     },
+    gender: {
+        type: String,
+        enum: ["male", "female"],
+        required: true,
+    },
     role: {
         type: String,
         enum: ["student"],

@@ -6,7 +6,8 @@ export interface NewStudent {
     enrollmentNumber:string,
     departmentName:string,
     semester:number,
-    collegeJoiningDate:string
+    collegeJoiningDate:string,
+    gender:string
 }
 export interface StudentLogin {
     fullName:string,

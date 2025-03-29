@@ -104,6 +104,7 @@ export const Logout = TryCatch(async (req: Request, res: Response) => {
     });
 });
 
+// For DashBoard 
 export const GetAllStudents = TryCatch(async (req: AuthRequest, res: Response) => {
     const isAdmin = await Admin.findById(req.Id);
     if (!isAdmin) {
@@ -166,6 +167,7 @@ export const GetAllTeachers = TryCatch(async (req: AuthRequest, res: Response) =
     });
 });
 
+// ManagePage 
 export const GetTeacherInfoFromId = TryCatch(async (req: Request, res: Response) => {
     const { _id } = req.body;
 
@@ -192,6 +194,7 @@ export const GetTeacherInfoFromId = TryCatch(async (req: Request, res: Response)
 
 });
 
+// AnalysisPage 
 export const GetPersentagesOFPresentAbsentIn7Days = TryCatch(async (req: Request, res: Response) => {
     const { Id } = req.body;
     if (!Id) return ErrorHandler(res, "Server Can't Get Proper Data (197)");
@@ -304,3 +307,58 @@ export const Present_Absent_cards = TryCatch(async (req: Request, res: Response)
         PresentPersentage: averagePercentage
     });
 });
+
+// ViewPage
+export const GetAllCards = TryCatch(async (req: Request, res: Response) => {
+    const AllStudentCount = await Student.countDocuments();
+    const AllTeacherCount = await Teacher.countDocuments();
+    const AllAdminCount = await Admin.countDocuments();
+
+    res.status(200).json({
+        success: true,
+        CardsData: { AllAdminCount, AllStudentCount, AllTeacherCount }
+    })
+});
+
+export const GetOverview = TryCatch(async (req: Request, res: Response) => {
+    const boys = await Student.find({ gender: "male" }).countDocuments();
+    const girls = await Student.find({ gender: "female" }).countDocuments();
+    
+
+    res.status(200).json({
+        success: true,
+        CardsData: { boys, girls}
+    })
+
+});
+
+export const GetAttendaceOverview = TryCatch(async(req:Request , res:Response)=>{
+    const last7DaysData: Array<{ date: string; PresentStudents: number; AbsentStudents: number }> = [];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    for(let i = 1 ; i <= 7 ; i++){
+        const today = new Date();
+        today.setUTCDate(today.getUTCDate() - i);
+        
+        const startingDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0, 0));
+        const endingDay = new Date(Date.UTC(today.getFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+
+        const AllClasses = await Class.find({createdAt:{$gte:startingDay , $lt:endingDay}});
+
+        let TotalCount = AllClasses.reduce((count , current)=> count + (current.allStudent.length) , 0);
+        let PresentCount = AllClasses.reduce((count , current)=> count + (current.presentStudent.length) , 0);
+        // let AbsentCount = AllClasses.reduce((count , current)=> count + (current.absentStudent.length) , 0);
+        let AbsentCount = TotalCount - PresentCount
+        
+        const day = days[startingDay.getUTCDay()]
+        last7DaysData.push({
+            date: day,
+            PresentStudents:PresentCount,
+            AbsentStudents:AbsentCount
+        })
+    }
+
+    res.status(200).json({
+        success: true,
+        DataOverview: last7DaysData
+    })
+})

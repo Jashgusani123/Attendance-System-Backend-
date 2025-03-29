@@ -21,7 +21,7 @@ const Student_1 = __importDefault(require("../Models/Student"));
 const CookieSender_1 = __importDefault(require("../Utils/CookieSender"));
 const ErrorHandling_1 = require("../Utils/ErrorHandling");
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { fullName, email, password, semester, departmentName, enrollmentNumber, collegeName, collegeJoiningDate } = req.body;
+    const { fullName, email, password, semester, departmentName, enrollmentNumber, collegeName, collegeJoiningDate, gender } = req.body;
     if (fullName && email && password && semester && departmentName && enrollmentNumber && collegeName && collegeJoiningDate && password.length >= 6) {
         const student = yield Student_1.default.create({
             fullName,
@@ -31,7 +31,8 @@ exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, v
             departmentName,
             enrollmentNumber,
             collegeName,
-            collegeJoiningDate
+            collegeJoiningDate,
+            gender
         });
         (0, CookieSender_1.default)(res, student._id.toString(), "Student");
         res.status(201).json({
