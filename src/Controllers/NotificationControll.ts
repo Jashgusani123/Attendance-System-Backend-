@@ -75,13 +75,15 @@ export const GetUserNotifications = TryCatch(async (
                 { to: erno },
                 { allStudent: { $in: [erno] } }
             ]
-        }).select("upperHeadding description");
+        }).select("upperHeadding description type");
+        res.status(200).json({ success: true, notifications: allNotification });
     } else if (id && !erno) {
         allNotification = await Notification.find({
             to: id
-        }).select("upperHeadding description");
+        }).select("upperHeadding description type");
+        res.status(200).json({ success: true, notifications: allNotification });
     }
 
 
-    res.status(200).json({ success: true, notifications: allNotification });
 });
+

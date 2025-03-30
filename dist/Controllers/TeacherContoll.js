@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GenerateExcel = exports.GetLastsClasses = exports.GetOverview = exports.GetAllAttendance = exports.getTeacher = exports.GetClasses = exports.Logout = exports.login = exports.Register = void 0;
+exports.SendNotification = exports.GenerateExcel = exports.GetLastsClasses = exports.GetOverview = exports.GetAllAttendance = exports.GetTeacher = exports.GetClasses = exports.Logout = exports.login = exports.Register = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const googleapis_1 = require("googleapis");
 const moment_1 = __importDefault(require("moment"));
@@ -22,6 +22,8 @@ const Student_1 = __importDefault(require("../Models/Student"));
 const Teacher_1 = __importDefault(require("../Models/Teacher"));
 const CookieSender_1 = __importDefault(require("../Utils/CookieSender"));
 const ErrorHandling_1 = require("../Utils/ErrorHandling");
+const Admin_1 = __importDefault(require("../Models/Admin"));
+const Notification_1 = __importDefault(require("../Models/Notification"));
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { fullName, email, password, departmentName, collegeName } = req.body;
     if (fullName && email && password && departmentName && collegeName && password.length >= 6) {
@@ -99,7 +101,7 @@ exports.GetClasses = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0,
         upcomingClasses
     });
 }));
-exports.getTeacher = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.GetTeacher = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const teacher = yield Teacher_1.default.findById(req.Id);
     res.status(200).json({
         success: true,
@@ -344,5 +346,27 @@ exports.GenerateExcel = (0, error_1.TryCatch)((req, res, next) => __awaiter(void
         success: true,
         message: `Google Sheet '${fileName || "Attendance Report"}' updated and shared successfully!`,
         spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${finalSpreadsheetId}`,
+    });
+}));
+exports.SendNotification = (0, error_1.TryCatch)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { message } = req.body;
+    if (!message)
+        return (0, ErrorHandling_1.ErrorHandler)(res, "Server Can't Get Proper Data (408)", 404);
+    const isTeacher = yield Teacher_1.default.findById(req.Id);
+    if (!isTeacher)
+        return (0, ErrorHandling_1.ErrorHandler)(res, "Something went wrong(412) !!", 404);
+    const isAdmin = yield Admin_1.default.findOne({ collegeName: isTeacher === null || isTeacher === void 0 ? void 0 : isTeacher.collegeName, departmentName: isTeacher === null || isTeacher === void 0 ? void 0 : isTeacher.departmentName });
+    if (!isAdmin)
+        return (0, ErrorHandling_1.ErrorHandler)(res, "Something went Wrong(415) !!", 404);
+    const newNotification = yield Notification_1.default.create({
+        to: isAdmin._id,
+        upperHeadding: `${isTeacher.fullName} Replay to You ...`,
+        description: message,
+        userType: "Admin",
+        type: "message"
+    });
+    res.status(200).json({
+        success: true,
+        message: "Send !!"
     });
 }));

@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 
 const NotificationSchema = new Schema(
     {
-        usertype: {
+        userType: {
             type: String,
             required: true,
         },

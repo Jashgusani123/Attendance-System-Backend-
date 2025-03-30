@@ -1,15 +1,16 @@
-import { Request, Response } from "express";
-import { TryCatch } from "../Middlewares/error";
-import { ErrorHandler } from "../Utils/ErrorHandling";
-import Admin from "../Models/Admin";
-import cookieSender from "../Utils/CookieSender";
-import { sendEmail } from "../Utils/SendEmail";
 import bcrypt from 'bcryptjs';
-import { AuthRequest } from "../Utils/Authentication";
-import Student from "../Models/Student";
-import Class from "../Models/Class";
-import Teacher from "../Models/Teacher";
+import { Request, Response } from "express";
 import moment from "moment";
+import { TryCatch } from "../Middlewares/error";
+import Admin from "../Models/Admin";
+import Class from "../Models/Class";
+import Notification from "../Models/Notification";
+import Student from "../Models/Student";
+import Teacher from "../Models/Teacher";
+import { AuthRequest } from "../Utils/Authentication";
+import cookieSender from "../Utils/CookieSender";
+import { ErrorHandler } from "../Utils/ErrorHandling";
+import { sendEmail } from "../Utils/SendEmail";
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
@@ -167,6 +168,11 @@ export const GetAllTeachers = TryCatch(async (req: AuthRequest, res: Response) =
     });
 });
 
+export const GetNotification = TryCatch(async(req:AuthRequest , res:Response)=>{
+    const AllNotifications = await Notification.find({to:req.Id , userType:"Admin"}).select("upperHeadding description type");
+    res.status(200).json({ success: true, notifications: AllNotifications });
+});
+
 // ManagePage 
 export const GetTeacherInfoFromId = TryCatch(async (req: Request, res: Response) => {
     const { _id } = req.body;
@@ -193,6 +199,26 @@ export const GetTeacherInfoFromId = TryCatch(async (req: Request, res: Response)
     })
 
 });
+
+export const SendNotification = TryCatch(async(req:AuthRequest , res:Response)=>{
+    const {message , teacherId} = req.body;
+    if(!message || !teacherId) return ErrorHandler(res , "Server Can't Get Proper Data (199)" , 404);
+    const isAdmin = await Admin.findById(req.Id);
+    if(!isAdmin) return ErrorHandler(res , "Server Can't Get Proper Data (201)" , 404);
+
+    await Notification.create({
+        upperHeadding:`${isAdmin.fullName} Send You New Message...`,
+        description:message,
+        to:teacherId,
+        userType:"Teacher",
+        type:"message"  
+    });
+
+    res.status(200).json({
+        success:true,
+        message:"Send !!"
+    })
+})
 
 // AnalysisPage 
 export const GetPersentagesOFPresentAbsentIn7Days = TryCatch(async (req: Request, res: Response) => {

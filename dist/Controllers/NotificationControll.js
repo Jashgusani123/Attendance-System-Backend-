@@ -77,12 +77,13 @@ exports.GetUserNotifications = (0, error_1.TryCatch)((req, res, next) => __await
                 { to: erno },
                 { allStudent: { $in: [erno] } }
             ]
-        }).select("upperHeadding description");
+        }).select("upperHeadding description type");
+        res.status(200).json({ success: true, notifications: allNotification });
     }
     else if (id && !erno) {
         allNotification = yield Notification_1.default.find({
             to: id
-        }).select("upperHeadding description");
+        }).select("upperHeadding description type");
+        res.status(200).json({ success: true, notifications: allNotification });
     }
-    res.status(200).json({ success: true, notifications: allNotification });
 }));

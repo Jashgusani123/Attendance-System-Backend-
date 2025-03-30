@@ -10,6 +10,8 @@ import { NewTeacher, TeacherLogin } from '../Types/TeacherType';
 import { AuthRequest } from '../Utils/Authentication';
 import CookieSender from '../Utils/CookieSender';
 import { ErrorHandler } from '../Utils/ErrorHandling';
+import Admin from '../Models/Admin';
+import Notification from '../Models/Notification';
 
 export const Register = TryCatch(
     async (
@@ -109,7 +111,7 @@ export const GetClasses = TryCatch(async (req: AuthRequest, res: Response, next:
     });
 });
 
-export const getTeacher = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const GetTeacher = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
 
     const teacher = await Teacher.findById(req.Id);
     res.status(200).json({
@@ -400,3 +402,28 @@ export const GenerateExcel = TryCatch(async (req: AuthRequest, res: Response, ne
         spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${finalSpreadsheetId}`,
     });
 });
+
+export const SendNotification = TryCatch(async(req:AuthRequest , res:Response)=>{
+    const {message} = req.body;
+
+    if(!message) return ErrorHandler(res , "Server Can't Get Proper Data (408)", 404);
+    
+    const isTeacher = await Teacher.findById(req.Id);
+    
+    if(!isTeacher) return ErrorHandler(res , "Something went wrong(412) !!", 404);
+
+    const isAdmin = await Admin.findOne({collegeName:isTeacher?.collegeName , departmentName:isTeacher?.departmentName});
+    if(!isAdmin) return ErrorHandler(res , "Something went Wrong(415) !!", 404);
+
+    const newNotification = await Notification.create({
+        to:isAdmin._id,
+        upperHeadding:`${isTeacher.fullName} Replay to You ...`,
+        description:message,
+        userType:"Admin",
+        type:"message"  
+    })
+    res.status(200).json({
+        success:true,
+        message:"Send !!"
+    })
+})
