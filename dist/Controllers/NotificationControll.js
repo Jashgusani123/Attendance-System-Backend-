@@ -17,13 +17,13 @@ const error_1 = require("../Middlewares/error");
 const Notification_1 = __importDefault(require("../Models/Notification"));
 const ErrorHandling_1 = require("../Utils/ErrorHandling");
 exports.CreateNotification = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { type, allStudent, upperHeadding, description, to } = req.body;
-    let usertype = "";
+    const { type, allStudent, upperHeadding, description, to, pandingId } = req.body;
+    let userType = "";
     if (req.type === "Teacher") {
-        usertype = "Teacher";
+        userType = "Teacher";
     }
-    else {
-        usertype = "Admin";
+    else if (req.type === "Admin" || req.type === "Panding") {
+        userType = "Admin";
     }
     if (type === process.env.CLASSCREATION && allStudent) {
         if (!upperHeadding || !description) {
@@ -35,7 +35,7 @@ exports.CreateNotification = (0, error_1.TryCatch)((req, res, next) => __awaiter
                 allStudent,
                 upperHeadding,
                 description,
-                usertype
+                userType
             });
             res.status(200).json({
                 sucess: true,
@@ -49,8 +49,23 @@ exports.CreateNotification = (0, error_1.TryCatch)((req, res, next) => __awaiter
             type,
             upperHeadding,
             description,
-            usertype,
+            userType,
             to
+        });
+        res.status(200).json({
+            sucess: true,
+            message: "Notificatoin Created ",
+            notification
+        });
+    }
+    else if (type === "request" && to && pandingId) {
+        const notification = yield Notification_1.default.create({
+            type,
+            upperHeadding,
+            description,
+            userType,
+            to,
+            pandingId
         });
         res.status(200).json({
             sucess: true,

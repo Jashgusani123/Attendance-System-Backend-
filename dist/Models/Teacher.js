@@ -72,6 +72,11 @@ const TeacherSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
+    gender: {
+        type: String,
+        enum: ["male", "female"],
+        required: true,
+    },
     role: {
         type: String,
         enum: ["teacher"],

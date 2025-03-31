@@ -18,8 +18,11 @@ const cookieSender = (res, Id, type) => {
     else if (type && type === "Student") {
         res.status(200).cookie("Student", token, cookieOptions);
     }
-    else {
+    else if (type && type === "Admin") {
         res.status(200).cookie("Admin", token, cookieOptions);
+    }
+    else {
+        res.status(200).cookie("Panding", token, cookieOptions);
     }
 };
 exports.default = cookieSender;

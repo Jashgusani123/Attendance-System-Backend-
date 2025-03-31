@@ -57,6 +57,9 @@ const NotificationSchema = new mongoose_1.Schema({
     },
     to: {
         type: String,
+    },
+    pandingId: {
+        type: String,
     }
 }, { timestamps: true });
 const Notification = mongoose_1.default.model('Notification', NotificationSchema);

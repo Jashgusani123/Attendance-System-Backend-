@@ -16,7 +16,6 @@ const TryCatch = (func) => {
             yield func(req, res, next);
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });

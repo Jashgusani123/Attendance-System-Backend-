@@ -9,15 +9,15 @@ export const CreateNotification = TryCatch(async (
     res: Response,
     next: NextFunction
 ) => {
-    const { type, allStudent, upperHeadding, description, to } = req.body;
-
-    let usertype = ""
+    const { type, allStudent, upperHeadding, description, to, pandingId } = req.body;
+    
+    let userType = ""
     if (req.type === "Teacher") {
-        usertype = "Teacher";
-    } else {
-        usertype = "Admin";
+        userType = "Teacher";
+    } else if(req.type === "Admin" || req.type === "Panding"){
+        userType = "Admin";
     }
-
+    
     if (type === process.env.CLASSCREATION && allStudent) {
         if (!upperHeadding || !description) {
             ErrorHandler(res, "Give Title and Description For that!!")
@@ -27,7 +27,7 @@ export const CreateNotification = TryCatch(async (
                 allStudent,
                 upperHeadding,
                 description,
-                usertype
+                userType
             })
             res.status(200).json({
                 sucess: true,
@@ -40,8 +40,22 @@ export const CreateNotification = TryCatch(async (
             type,
             upperHeadding,
             description,
-            usertype,
+            userType,
             to
+        });
+        res.status(200).json({
+            sucess: true,
+            message: "Notificatoin Created ",
+            notification
+        });
+    } else if(type === "request" && to && pandingId){
+        const notification = await Notification.create({
+            type,
+            upperHeadding,
+            description,
+            userType,
+            to,
+            pandingId
         });
         res.status(200).json({
             sucess: true,

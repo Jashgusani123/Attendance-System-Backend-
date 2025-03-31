@@ -24,6 +24,9 @@ const NotificationSchema = new Schema(
         },
         to:{
             type:String,
+        },
+        pandingId:{
+            type:String,
         }
     },
     { timestamps: true }
@@ -35,7 +38,8 @@ export interface MyNotification extends Document {
     allStudent?: string[];
     upperHeadding: string;
     description: string;
-    to?:string
+    to?:string;
+    pandingId?:string
 }
 
 

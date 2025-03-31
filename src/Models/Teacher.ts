@@ -27,8 +27,11 @@ const TeacherSchema = new Schema({
     type: String,
     required: true,
   },
-  
-
+  gender: {
+    type: String,
+    enum:["male" , "female"],
+    required: true,
+  },
   role: {
     type: String,
     enum: ["teacher"],
@@ -44,7 +47,8 @@ export interface ITeacher extends Document {
   collegeName: string;
   departmentName: string;
   role: string;
-  createdAt?:Date
+  gender:string;
+  createdAt?:Date;
 }
 
 // Hash password before saving

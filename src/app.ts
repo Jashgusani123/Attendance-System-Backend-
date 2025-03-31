@@ -6,15 +6,16 @@ import { createServer } from "http"; // Import for creating an HTTP server
 import { Model } from 'mongoose';
 import { Server, Socket } from "socket.io";
 import connectDB from "./config/ConnectDB";
+import Admin from "./Models/Admin";
+import Panding from './Models/Panding';
 import Student from "./Models/Student";
 import Teacher from "./Models/Teacher";
-import Admin from "./Models/Admin";
+import AdminRoutes from './Routes/AdminRoute';
 import ClassRoute from './Routes/ClassRoute';
 import NotificationRoute from './Routes/NotificationRoute';
+import PandingRoute from './Routes/PandingRoute';
 import StudetRoutes from './Routes/StudentRoutes';
 import TeacherRoutes from './Routes/TeacherRoutes';
-import RequestRoutes from './Routes/RequestRoute';
-import AdminRoutes from './Routes/AdminRoute';
 import { AuthRequest, GetUser } from "./Utils/Authentication";
 
 dotenv.config(); // Load environment variables
@@ -119,8 +120,8 @@ app.use("/student", StudetRoutes);
 app.use("/teacher", TeacherRoutes);
 app.use("/class" , ClassRoute);
 app.use("/notification" , NotificationRoute);
-app.use("/request" , RequestRoutes);
 app.use("/admin" , AdminRoutes);
+app.use("/panding" , PandingRoute);
 
 app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -131,6 +132,8 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
       model = Teacher;
     } else if (req.type === "Admin"){
       model = Admin;
+    }else {
+      model = Panding;
     }
 
     if (!model || !req.Id) {
@@ -139,11 +142,12 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
     }
 
     const user = await model.findById(req.Id).exec();
+    
     if (!user) {
       res.status(404).json({ message: `${req.type} not found` });
       return;
     }
-
+    
     res.json({ success: true, type: req.type, user });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -156,3 +160,4 @@ server.listen(PORT, () => {
 });
 
 export { io, server, TeacherSockets };
+

@@ -13,7 +13,6 @@ export const TryCatch = (func: ControllerType) => {
       try {
         await func(req, res, next);
       } catch (error) {
-        console.log(error);
         next(error);
       }
     };

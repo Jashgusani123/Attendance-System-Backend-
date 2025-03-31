@@ -20,15 +20,16 @@ const express_1 = __importDefault(require("express"));
 const http_1 = require("http"); // Import for creating an HTTP server
 const socket_io_1 = require("socket.io");
 const ConnectDB_1 = __importDefault(require("./config/ConnectDB"));
+const Admin_1 = __importDefault(require("./Models/Admin"));
+const Panding_1 = __importDefault(require("./Models/Panding"));
 const Student_1 = __importDefault(require("./Models/Student"));
 const Teacher_1 = __importDefault(require("./Models/Teacher"));
-const Admin_1 = __importDefault(require("./Models/Admin"));
+const AdminRoute_1 = __importDefault(require("./Routes/AdminRoute"));
 const ClassRoute_1 = __importDefault(require("./Routes/ClassRoute"));
 const NotificationRoute_1 = __importDefault(require("./Routes/NotificationRoute"));
+const PandingRoute_1 = __importDefault(require("./Routes/PandingRoute"));
 const StudentRoutes_1 = __importDefault(require("./Routes/StudentRoutes"));
 const TeacherRoutes_1 = __importDefault(require("./Routes/TeacherRoutes"));
-const RequestRoute_1 = __importDefault(require("./Routes/RequestRoute"));
-const AdminRoute_1 = __importDefault(require("./Routes/AdminRoute"));
 const Authentication_1 = require("./Utils/Authentication");
 dotenv_1.default.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -118,8 +119,8 @@ app.use("/student", StudentRoutes_1.default);
 app.use("/teacher", TeacherRoutes_1.default);
 app.use("/class", ClassRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
-app.use("/request", RequestRoute_1.default);
 app.use("/admin", AdminRoute_1.default);
+app.use("/panding", PandingRoute_1.default);
 app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let model = null;
@@ -131,6 +132,9 @@ app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, vo
         }
         else if (req.type === "Admin") {
             model = Admin_1.default;
+        }
+        else {
+            model = Panding_1.default;
         }
         if (!model || !req.Id) {
             res.status(400).json({ message: "Invalid user type or ID" });

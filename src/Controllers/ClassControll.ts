@@ -15,12 +15,8 @@ export const CreateClass = TryCatch(async (
 ) => {
     const { departmentName, ending, semester, starting, subjectName, location, teacherName } = req.body;
 
-    // console.log(req.Id);
-
     const teacher = await Teacher.findById(req.Id);
 
-    console.log(teacher?.collegeName);
-    console.log(departmentName);
     
     Number(semester);
     const allStudents = await Student.find({
@@ -29,11 +25,6 @@ export const CreateClass = TryCatch(async (
         semester: Number(semester)
     }).collation({ locale: "en", strength: 2 }) // Case-insensitive matching
     .select("enrollmentNumber");
-    
-    console.log(allStudents);
-    console.log(semester);
-
-    
     
     const allStudent = allStudents.map(student => student.enrollmentNumber);
 
@@ -61,7 +52,6 @@ export const GetAll = TryCatch(async (req: Request, res: Response, next: NextFun
     })
 });
 
-
 export const GetLiveClass = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
     const { enrollmentNumber } = req.body;
 
@@ -75,7 +65,6 @@ export const GetLiveClass = TryCatch(async (req: Request, res: Response, next: N
 
 
     classes.map((i) => {
-        console.log(time > i.starting, i.ending >= time);
 
         if (time > i.starting && i.ending > time) {
             LiveClasses.push(i)
@@ -100,7 +89,6 @@ export const GetUpcomingClass = TryCatch(async (req: Request, res: Response, nex
 
 
     classes.map((i) => {
-        console.log(time > i.starting, i.ending >= time);
 
         if (time < i.starting) {
 
@@ -112,6 +100,7 @@ export const GetUpcomingClass = TryCatch(async (req: Request, res: Response, nex
         LiveClasses
     })
 });
+
 export const Accept = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { classID, StudentErNo } = req.body;
 

@@ -25,10 +25,10 @@ const ErrorHandling_1 = require("../Utils/ErrorHandling");
 const Admin_1 = __importDefault(require("../Models/Admin"));
 const Notification_1 = __importDefault(require("../Models/Notification"));
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { fullName, email, password, departmentName, collegeName } = req.body;
-    if (fullName && email && password && departmentName && collegeName && password.length >= 6) {
+    const { fullName, email, password, departmentName, collegeName, gender } = req.body;
+    if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
         const isTeacher = yield Teacher_1.default.find({ email: email });
-        if (isTeacher) {
+        if (isTeacher.length > 0) {
             return (0, ErrorHandling_1.ErrorHandler)(res, "This Account Allready Created!! ");
         }
         const teacher = yield Teacher_1.default.create({
@@ -37,6 +37,7 @@ exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, v
             password,
             departmentName,
             collegeName,
+            gender
         });
         (0, CookieSender_1.default)(res, teacher._id.toString(), "Teacher");
         res.status(201).json({

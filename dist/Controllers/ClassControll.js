@@ -22,10 +22,7 @@ const moment_1 = __importDefault(require("moment"));
 const Student_1 = __importDefault(require("../Models/Student"));
 exports.CreateClass = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { departmentName, ending, semester, starting, subjectName, location, teacherName } = req.body;
-    // console.log(req.Id);
     const teacher = yield Teacher_1.default.findById(req.Id);
-    console.log(teacher === null || teacher === void 0 ? void 0 : teacher.collegeName);
-    console.log(departmentName);
     Number(semester);
     const allStudents = yield Student_1.default.find({
         collegeName: { $eq: teacher === null || teacher === void 0 ? void 0 : teacher.collegeName },
@@ -33,8 +30,6 @@ exports.CreateClass = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0
         semester: Number(semester)
     }).collation({ locale: "en", strength: 2 }) // Case-insensitive matching
         .select("enrollmentNumber");
-    console.log(allStudents);
-    console.log(semester);
     const allStudent = allStudents.map(student => student.enrollmentNumber);
     let newClass = yield Class_1.default.create({
         collegeName: teacher === null || teacher === void 0 ? void 0 : teacher.collegeName, departmentName, ending, semester, starting, subjectName, allStudent, location, createdBy: req.Id, teacherName
@@ -63,7 +58,6 @@ exports.GetLiveClass = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 
     const time = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
     const LiveClasses = [];
     classes.map((i) => {
-        console.log(time > i.starting, i.ending >= time);
         if (time > i.starting && i.ending > time) {
             LiveClasses.push(i);
         }
@@ -81,7 +75,6 @@ exports.GetUpcomingClass = (0, error_1.TryCatch)((req, res, next) => __awaiter(v
     const time = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
     const LiveClasses = [];
     classes.map((i) => {
-        console.log(time > i.starting, i.ending >= time);
         if (time < i.starting) {
             LiveClasses.push(i);
         }

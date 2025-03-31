@@ -11,6 +11,7 @@ import { AuthRequest } from "../Utils/Authentication";
 import cookieSender from "../Utils/CookieSender";
 import { ErrorHandler } from "../Utils/ErrorHandling";
 import { sendEmail } from "../Utils/SendEmail";
+import Panding from '../Models/Panding';
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
@@ -51,7 +52,7 @@ For security reasons, please **do not share this key with anyone**. If you did n
 Best regards,  
 Attendance System Team `;
     sendEmail(email, "QuickAttend - Admin Access Key for Secure Login", text)
-    cookieSender(res, newAdmin._id.toString())
+    cookieSender(res, newAdmin._id.toString() , "Admin")
     res.status(202).json({
         success: true,
         user: await newAdmin.populate("fullName email collegeName departmentName"),
@@ -68,7 +69,7 @@ export const login = TryCatch(async (req: Request, res: Response) => {
             const compareSecretKey = getUser?.secretKey === secretKey;
             const comparePassword = await bcrypt.compare(password, getUser?.password);
             if (comparePassword && compareSecretKey) {
-                cookieSender(res, getUser._id.toString());
+                cookieSender(res, getUser._id.toString() , "Admin");
                 res.status(200).json({
                     success: true,
                     message: `Wellcome ${getUser.fullName}`,
@@ -169,7 +170,7 @@ export const GetAllTeachers = TryCatch(async (req: AuthRequest, res: Response) =
 });
 
 export const GetNotification = TryCatch(async(req:AuthRequest , res:Response)=>{
-    const AllNotifications = await Notification.find({to:req.Id , userType:"Admin"}).select("upperHeadding description type");
+    const AllNotifications = await Notification.find({to:req.Id , userType:"Admin"}).select("upperHeadding description type pandingId");
     res.status(200).json({ success: true, notifications: AllNotifications });
 });
 

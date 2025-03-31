@@ -19,11 +19,12 @@ export const Register = TryCatch(
         res: Response,
         next: NextFunction
     ) => {
-        const { fullName, email, password, departmentName, collegeName } = req.body;
+        const { fullName, email, password, departmentName, collegeName, gender } = req.body;
 
-        if (fullName && email && password && departmentName && collegeName && password.length >= 6) {
+        if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
             const isTeacher = await Teacher.find({ email: email });
-            if (isTeacher) {
+            
+            if (isTeacher.length > 0) {
                 return ErrorHandler(res, "This Account Allready Created!! ");
             }
             const teacher = await Teacher.create({
@@ -32,6 +33,7 @@ export const Register = TryCatch(
                 password,
                 departmentName,
                 collegeName,
+                gender
             }) as ITeacher;
             CookieSender(res, teacher._id.toString(), "Teacher")
             res.status(201).json({
