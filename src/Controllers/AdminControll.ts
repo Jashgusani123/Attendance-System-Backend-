@@ -28,6 +28,14 @@ export const Register = TryCatch(async (req: Request, res: Response) => {
     if (isAdmin) {
         return ErrorHandler(res, "This Account Created Once!!")
     }
+    //v1
+    const Admins = await Admin.find({collegeName:collegeName});
+
+    const ifAvailable = Admins.find((i)=> i.departmentName === departmentName);
+
+    if(ifAvailable){
+        return ErrorHandler(res , "This Department's HOD Already Created !!")
+    }
 
     const newAdmin = await Admin.create({
         fullName, email, password, collegeName, departmentName

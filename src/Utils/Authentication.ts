@@ -1,5 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import jwt from "jsonwebtoken";
+import Admin from "../Models/Admin";
 
 // Extend Request type to include custom properties
 export interface AuthRequest extends Request {
@@ -11,16 +12,14 @@ export interface AuthRequest extends Request {
 
 export const GetUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    
-
     const token1 = req.cookies?.["Admin"]; // Admin token
     const token2 = req.cookies?.["Teacher"]; // Teacher token
     const token3 = req.cookies?.["Student"]; // Student token
     const token4 = req.cookies?.["Panding"]; // Student token
     
-    
     if (!token1 && !token2 && !token3 && !token4) {
-      res.status(401).json({ message: "Unauthorized: No token provided" });
+      
+      res.status(401).json({ message: "Unauthorized: No token provided"});
       return; // Stops execution if no tokens are provided
     }
     

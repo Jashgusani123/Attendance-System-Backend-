@@ -31,6 +31,7 @@ const PandingRoute_1 = __importDefault(require("./Routes/PandingRoute"));
 const StudentRoutes_1 = __importDefault(require("./Routes/StudentRoutes"));
 const TeacherRoutes_1 = __importDefault(require("./Routes/TeacherRoutes"));
 const Authentication_1 = require("./Utils/Authentication");
+const SupportedRoutes_1 = __importDefault(require("./Routes/SupportedRoutes"));
 dotenv_1.default.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
 // Initialize Express App
@@ -111,7 +112,7 @@ io.on("connection", (socket) => {
         });
     });
 });
-// Routes
+// Routes - v0
 app.get("/", (req, res) => {
     res.send("Hello World from Server!👋🏻");
 });
@@ -151,6 +152,8 @@ app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, vo
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 }));
+// Routes - v1
+app.use("/api/v1/supported", SupportedRoutes_1.default);
 // Start Server
 server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
