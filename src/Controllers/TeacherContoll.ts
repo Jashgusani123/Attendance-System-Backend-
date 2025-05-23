@@ -10,7 +10,7 @@ import { NewTeacher, TeacherLogin } from '../Types/TeacherType';
 import { AuthRequest } from '../Utils/Authentication';
 import CookieSender from '../Utils/CookieSender';
 import { ErrorHandler } from '../Utils/ErrorHandling';
-import Admin from '../Models/Admin';
+import Hod from '../Models/Hod';
 import Notification from '../Models/Notification';
 
 export const Register = TryCatch(
@@ -20,13 +20,16 @@ export const Register = TryCatch(
         next: NextFunction
     ) => {
         const { fullName, email, password, departmentName, collegeName, gender } = req.body;
-
+        console.log(password);
+        
         if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
             const isTeacher = await Teacher.find({ email: email });
             
             if (isTeacher.length > 0) {
                 return ErrorHandler(res, "This Account Allready Created!! ");
             }
+            
+            
             const teacher = await Teacher.create({
                 fullName,
                 email,
@@ -59,9 +62,9 @@ export const login = TryCatch(async (
     const { fullName, email, password } = req.body;
     if (fullName && email && password) {
         const teacher = await Teacher.findOne({ email: email });
-
+        
         const truePassword = await bcrypt.compare(password, teacher?.password!);
-
+        
         if (truePassword) {
             CookieSender(res, teacher!._id.toString(), "Teacher")
             return res.status(202).json({
@@ -414,14 +417,14 @@ export const SendNotification = TryCatch(async(req:AuthRequest , res:Response)=>
     
     if(!isTeacher) return ErrorHandler(res , "Something went wrong(412) !!", 404);
 
-    const isAdmin = await Admin.findOne({collegeName:isTeacher?.collegeName , departmentName:isTeacher?.departmentName});
-    if(!isAdmin) return ErrorHandler(res , "Something went Wrong(415) !!", 404);
+    const isHod = await Hod.findOne({collegeName:isTeacher?.collegeName , departmentName:isTeacher?.departmentName});
+    if(!isHod) return ErrorHandler(res , "Something went Wrong(415) !!", 404);
 
     const newNotification = await Notification.create({
-        to:isAdmin._id,
+        to:isHod._id,
         upperHeadding:`${isTeacher.fullName} Replay to You ...`,
         description:message,
-        userType:"Admin",
+        userType:"Hod",
         type:"message"  
     })
     res.status(200).json({

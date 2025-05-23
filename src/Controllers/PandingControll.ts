@@ -1,22 +1,23 @@
 import { Request, Response } from "express";
 import { TryCatch } from "../Middlewares/error";
-import Admin from "../Models/Admin";
+import Hod from "../Models/Hod";
 import Panding from "../Models/Panding";
 import { AuthRequest } from "../Utils/Authentication";
 import cookieSender from "../Utils/CookieSender";
 import { ErrorHandler } from "../Utils/ErrorHandling";
 import Notification from "../Models/Notification";
+import Teacher from "../Models/Teacher";
 
 
 export const CreatePandingRequest = TryCatch(async (req: Request, res: Response) => {
     const { fullName, email, password, departmentName, collegeName, gender } = req.body;
 
     if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
-        const isAdmin = await Admin.findOne({ departmentName, collegeName });
-        if (!isAdmin) return ErrorHandler(res, "Invalid Request (11)", 404);
+        const isHod = await Hod.findOne({ departmentName, collegeName });
+        if (!isHod) return ErrorHandler(res, "Invalid Request (11)", 404);
 
         const newPanding = await Panding.create({
-            fullName, email, password, departmentName, collegeName, gender, accepted: false, adminId: isAdmin._id, rejected: false
+            fullName, email, password, departmentName, collegeName, gender, accepted: false, hodId: isHod._id, rejected: false
         });
         cookieSender(res, newPanding._id.toString());
 
@@ -65,6 +66,7 @@ export const AcceptPandingRequest = TryCatch(async (req: Request, res: Response)
     isPanding.rejected = false;
     await isPanding.save();
     await isNotification?.deleteOne();
+
     res.status(200).json({
         success: true,
         message: "Accepted..."

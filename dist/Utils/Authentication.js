@@ -17,7 +17,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const GetUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
     try {
-        const token1 = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a["Admin"]; // Admin token
+        const token1 = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a["Hod"]; // Hod token
         const token2 = (_b = req.cookies) === null || _b === void 0 ? void 0 : _b["Teacher"]; // Teacher token
         const token3 = (_c = req.cookies) === null || _c === void 0 ? void 0 : _c["Student"]; // Student token
         const token4 = (_d = req.cookies) === null || _d === void 0 ? void 0 : _d["Panding"]; // Student token
@@ -27,7 +27,6 @@ const GetUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         }
         // Ensure JWT_SECRET is defined
         if (!process.env.JWT_SECRET) {
-            console.error("JWT_SECRET is missing from environment variables.");
             res.status(500).json({ message: "Internal Server Error: Missing JWT_SECRET" });
             return; // Stops execution if JWT_SECRET is missing
         }
@@ -36,7 +35,7 @@ const GetUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         // Decode the token based on which one is available
         if (token1) {
             decoded = jsonwebtoken_1.default.verify(token1, process.env.JWT_SECRET);
-            userType = "Admin";
+            userType = "Hod";
         }
         else if (token2) {
             decoded = jsonwebtoken_1.default.verify(token2, process.env.JWT_SECRET);
@@ -54,7 +53,7 @@ const GetUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         if (decoded && userType) {
             req.Id = decoded._id; // Assign the user ID
             req.isLoggedIn = true; // Mark the user as logged in
-            req.type = userType; // Assign the user type (Admin/Teacher/Student)
+            req.type = userType; // Assign the user type (Hod/Teacher/Student)
             next(); // Proceed to the next middleware
         }
         else {

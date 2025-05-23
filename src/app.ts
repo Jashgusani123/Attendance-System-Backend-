@@ -6,18 +6,18 @@ import { createServer } from "http"; // Import for creating an HTTP server
 import { Model } from 'mongoose';
 import { Server, Socket } from "socket.io";
 import connectDB from "./config/ConnectDB";
-import Admin from "./Models/Admin";
+import Hod from "./Models/Hod";
 import Panding from './Models/Panding';
 import Student from "./Models/Student";
 import Teacher from "./Models/Teacher";
-import AdminRoutes from './Routes/AdminRoute';
 import ClassRoute from './Routes/ClassRoute';
+import HodRoutes from './Routes/HodRoute';
 import NotificationRoute from './Routes/NotificationRoute';
 import PandingRoute from './Routes/PandingRoute';
 import StudetRoutes from './Routes/StudentRoutes';
+import SupportedRoutes from './Routes/SupportedRoutes';
 import TeacherRoutes from './Routes/TeacherRoutes';
 import { AuthRequest, GetUser } from "./Utils/Authentication";
-import SupportedRoutes from './Routes/SupportedRoutes';
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -121,7 +121,7 @@ app.use("/student", StudetRoutes);
 app.use("/teacher", TeacherRoutes);
 app.use("/class" , ClassRoute);
 app.use("/notification" , NotificationRoute);
-app.use("/admin" , AdminRoutes);
+app.use("/hod" , HodRoutes);
 app.use("/panding" , PandingRoute);
 
 app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<void> => {
@@ -131,8 +131,8 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
       model = Student;
     } else if (req.type === "Teacher") {
       model = Teacher;
-    } else if (req.type === "Admin"){
-      model = Admin;
+    } else if (req.type === "Hod"){
+      model = Hod;
     }else {
       model = Panding;
     }

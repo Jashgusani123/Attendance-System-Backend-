@@ -22,10 +22,11 @@ const Student_1 = __importDefault(require("../Models/Student"));
 const Teacher_1 = __importDefault(require("../Models/Teacher"));
 const CookieSender_1 = __importDefault(require("../Utils/CookieSender"));
 const ErrorHandling_1 = require("../Utils/ErrorHandling");
-const Admin_1 = __importDefault(require("../Models/Admin"));
+const Hod_1 = __importDefault(require("../Models/Hod"));
 const Notification_1 = __importDefault(require("../Models/Notification"));
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { fullName, email, password, departmentName, collegeName, gender } = req.body;
+    console.log(password);
     if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
         const isTeacher = yield Teacher_1.default.find({ email: email });
         if (isTeacher.length > 0) {
@@ -356,14 +357,14 @@ exports.SendNotification = (0, error_1.TryCatch)((req, res) => __awaiter(void 0,
     const isTeacher = yield Teacher_1.default.findById(req.Id);
     if (!isTeacher)
         return (0, ErrorHandling_1.ErrorHandler)(res, "Something went wrong(412) !!", 404);
-    const isAdmin = yield Admin_1.default.findOne({ collegeName: isTeacher === null || isTeacher === void 0 ? void 0 : isTeacher.collegeName, departmentName: isTeacher === null || isTeacher === void 0 ? void 0 : isTeacher.departmentName });
-    if (!isAdmin)
+    const isHod = yield Hod_1.default.findOne({ collegeName: isTeacher === null || isTeacher === void 0 ? void 0 : isTeacher.collegeName, departmentName: isTeacher === null || isTeacher === void 0 ? void 0 : isTeacher.departmentName });
+    if (!isHod)
         return (0, ErrorHandling_1.ErrorHandler)(res, "Something went Wrong(415) !!", 404);
     const newNotification = yield Notification_1.default.create({
-        to: isAdmin._id,
+        to: isHod._id,
         upperHeadding: `${isTeacher.fullName} Replay to You ...`,
         description: message,
-        userType: "Admin",
+        userType: "Hod",
         type: "message"
     });
     res.status(200).json({

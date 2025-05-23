@@ -17,8 +17,8 @@ const cookieSender = (res: Response, Id: string, type?: string): void => {
     res.status(200).cookie("Teacher", token, cookieOptions);
   } else if (type && type === "Student") {
     res.status(200).cookie("Student", token, cookieOptions);
-  } else if (type && type === "Admin") {
-    res.status(200).cookie("Admin", token, cookieOptions);
+  } else if (type && type === "Hod") {
+    res.status(200).cookie("Hod", token, cookieOptions);
   } else {
     res.status(200).cookie("Panding", token, cookieOptions);
   }

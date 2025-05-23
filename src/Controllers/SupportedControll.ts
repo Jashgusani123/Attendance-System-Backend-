@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { TryCatch } from "../Middlewares/error";
-import Admin from "../Models/Admin";
+import Hod from "../Models/Hod";
 
 export const GetAllCollege = TryCatch(
     async (
@@ -8,8 +8,8 @@ export const GetAllCollege = TryCatch(
         res: Response,
         next: NextFunction
     ) => {
-        const admins = await Admin.find({});
-        const collegeNames = [...new Set(admins.map((i) => i.collegeName))];
+        const Hods = await Hod.find({});
+        const collegeNames = [...new Set(Hods.map((i) => i.collegeName))];
         res.status(200).json({ success: true , collegeNames });
     });
 
@@ -21,7 +21,7 @@ export const GetAllCollege = TryCatch(
             res: Response,
             next: NextFunction
         ) => {
-            const admins = await Admin.find({collegeName:req.body.collegeName});
-            const departmentNames = [...new Set(admins.map((i) => i.departmentName))];
+            const Hods = await Hod.find({collegeName:req.body.collegeName});
+            const departmentNames = [...new Set(Hods.map((i) => i.departmentName))];
             res.status(200).json({ success: true , departmentNames });
         });

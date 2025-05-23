@@ -1,5 +1,5 @@
 import express from 'express'
-import { Get7DaysData, GetAllCards, GetAllStudents, GetAllTeachers, GetAttendaceOverview, GetNotification, GetOverview, GetPersentagesOFPresentAbsentIn7Days, GetTeacherInfoFromId, login, Logout, Present_Absent_cards, Register, SendNotification } from '../Controllers/AdminControll'
+import { Get7DaysData, GetAllCards, GetAllStudents, GetAllTeachers, GetAttendaceOverview, GetNotification, GetOverview, GetPersentagesOFPresentAbsentIn7Days, GetTeacherInfoFromId, login, Logout, Present_Absent_cards, Register, SendNotification } from '../Controllers/HodControll'
 import { GetUser } from '../Utils/Authentication'
 const app = express()
 

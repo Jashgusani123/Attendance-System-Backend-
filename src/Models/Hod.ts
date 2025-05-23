@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from 'bcryptjs'
 
-const AdminSchema = new Schema({
+const HodSchema = new Schema({
     fullName:{
         type:String,
         require:true
@@ -26,8 +26,8 @@ const AdminSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ["admin"],
-        default: "admin",
+        enum: ["hod"],
+        default: "hod",
       },
       secretKey:{
         type:String,
@@ -35,7 +35,7 @@ const AdminSchema = new Schema({
       }
 }, {timestamps:true})
 
-export interface IAdmin extends Document{
+export interface IHod extends Document{
     fullName:String;
     email:String;
     password:string;
@@ -46,12 +46,12 @@ export interface IAdmin extends Document{
     secretKey:String;
 }
 
-AdminSchema.pre("save" , async function(next){
+HodSchema.pre("save" , async function(next){
     if(!this.isModified('password'))return next();
     this.password = await bcrypt.hash(this.password! , 10);
     next();
 })
 
-const Admin = mongoose.model<IAdmin>("Admin" , AdminSchema);
+const Hod = mongoose.model<IHod>("Hod" , HodSchema);
 
-export default Admin;
+export default Hod;

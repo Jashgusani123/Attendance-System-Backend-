@@ -9,14 +9,15 @@ export const CreateNotification = TryCatch(async (
     res: Response,
     next: NextFunction
 ) => {
-    const { type, allStudent, upperHeadding, description, to, pandingId } = req.body;
+    const { type ,allStudent, upperHeadding, description, to, pandingId } = req.body;
     
     let userType = ""
     if (req.type === "Teacher") {
         userType = "Teacher";
-    } else if(req.type === "Admin" || req.type === "Panding"){
-        userType = "Admin";
+    } else if(req.type === "Hod" || req.type === "Panding"){
+        userType = "Hod";
     }
+    console.log(userType);
     
     if (type === process.env.CLASSCREATION && allStudent) {
         if (!upperHeadding || !description) {

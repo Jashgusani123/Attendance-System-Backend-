@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { Request, Response } from "express";
 import moment from "moment";
 import { TryCatch } from "../Middlewares/error";
-import Admin from "../Models/Admin";
+import Hod from "../Models/Hod";
 import Class from "../Models/Class";
 import Notification from "../Models/Notification";
 import Student from "../Models/Student";
@@ -11,7 +11,6 @@ import { AuthRequest } from "../Utils/Authentication";
 import cookieSender from "../Utils/CookieSender";
 import { ErrorHandler } from "../Utils/ErrorHandling";
 import { sendEmail } from "../Utils/SendEmail";
-import Panding from '../Models/Panding';
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
@@ -23,47 +22,47 @@ export const Register = TryCatch(async (req: Request, res: Response) => {
     if (password.length < 6) {
         return ErrorHandler(res, "Password Should be 6 length", 411)
     }
-    const isAdmin = await Admin.findOne({ email: email });
+    const isHod = await Hod.findOne({ email: email });
 
-    if (isAdmin) {
+    if (isHod) {
         return ErrorHandler(res, "This Account Created Once!!")
     }
     //v1
-    const Admins = await Admin.find({collegeName:collegeName});
+    const Hods = await Hod.find({collegeName:collegeName});
 
-    const ifAvailable = Admins.find((i)=> i.departmentName === departmentName);
+    const ifAvailable = Hods.find((i)=> i.departmentName === departmentName);
 
     if(ifAvailable){
         return ErrorHandler(res , "This Department's HOD Already Created !!")
     }
 
-    const newAdmin = await Admin.create({
+    const newHod = await Hod.create({
         fullName, email, password, collegeName, departmentName
     });
-    const secretKey = newAdmin._id.toString().slice(-10);
-    newAdmin.secretKey = secretKey;
-    newAdmin.save();
-    const text = `Dear Admin,
+    const secretKey = newHod._id.toString().slice(-10);
+    newHod.secretKey = secretKey;
+    newHod.save();
+    const text = `Dear Head Of Department,
 
 Welcome to the Attendance System!
 
 Our platform is designed to make attendance management **quick, efficient, and hassle-free** for both teachers and students. With just a few clicks, you can mark attendance, track records, and generate reports—**saving valuable time during class sessions**.
 
-As an admin, you have full access to manage users, monitor attendance records, and ensure a smooth experience for all.
+As an Hod, you have full access to manage users, monitor attendance records, and ensure a smooth experience for all.
 
-To log in as an administrator, please use the secret key provided below:
+To log in as an HOD, please use the secret key provided below:
 
-🔑 Your Admin Secret Key: ${secretKey}
+🔑 Your Hod Secret Key: ${secretKey}
 
 For security reasons, please **do not share this key with anyone**. If you did not request this access, please contact support immediately.
 
 Best regards,  
 Attendance System Team `;
-    sendEmail(email, "QuickAttend - Admin Access Key for Secure Login", text)
-    cookieSender(res, newAdmin._id.toString() , "Admin")
+    sendEmail(email, "QuickAttend - HOD Access Key for Secure Login", text)
+    cookieSender(res, newHod._id.toString() , "Hod")
     res.status(202).json({
         success: true,
-        user: await newAdmin.populate("fullName email collegeName departmentName"),
+        user: await newHod.populate("fullName email collegeName departmentName"),
         message: "Account Created !!"
     })
 });
@@ -72,12 +71,12 @@ export const login = TryCatch(async (req: Request, res: Response) => {
     const { email, password, secretKey } = req.body;
 
     if (email && password && secretKey) {
-        const getUser = await Admin.findOne({ email: email });
+        const getUser = await Hod.findOne({ email: email });
         if (getUser) {
             const compareSecretKey = getUser?.secretKey === secretKey;
             const comparePassword = await bcrypt.compare(password, getUser?.password);
             if (comparePassword && compareSecretKey) {
-                cookieSender(res, getUser._id.toString() , "Admin");
+                cookieSender(res, getUser._id.toString() , "Hod");
                 res.status(200).json({
                     success: true,
                     message: `Wellcome ${getUser.fullName}`,
@@ -106,7 +105,7 @@ export const Logout = TryCatch(async (req: Request, res: Response) => {
         secure: true,
     };
 
-    res.cookie("Admin", "", cookieOptions);
+    res.cookie("Hod", "", cookieOptions);
 
     res.status(200).json({
         success: true,
@@ -116,11 +115,11 @@ export const Logout = TryCatch(async (req: Request, res: Response) => {
 
 // For DashBoard 
 export const GetAllStudents = TryCatch(async (req: AuthRequest, res: Response) => {
-    const isAdmin = await Admin.findById(req.Id);
-    if (!isAdmin) {
+    const isHod = await Hod.findById(req.Id);
+    if (!isHod) {
         return ErrorHandler(res, "Something Went Wrong !!", 404);
     }
-    const GetAllStudents = await Student.find({ departmentName: isAdmin.departmentName, collegeName: isAdmin.collegeName });
+    const GetAllStudents = await Student.find({ departmentName: isHod.departmentName, collegeName: isHod.collegeName });
 
     const StudentData = [];
 
@@ -155,12 +154,12 @@ export const GetAllStudents = TryCatch(async (req: AuthRequest, res: Response) =
 });
 
 export const GetAllTeachers = TryCatch(async (req: AuthRequest, res: Response) => {
-    const isAdmin = await Admin.findById(req.Id);
-    if (!isAdmin) {
+    const isHod = await Hod.findById(req.Id);
+    if (!isHod) {
         return ErrorHandler(res, "Something Went Wrong !! (147)", 404)
     }
 
-    const AllTeachersData = await Teacher.find({ departmentName: isAdmin.departmentName, collegeName: isAdmin.collegeName });
+    const AllTeachersData = await Teacher.find({ departmentName: isHod.departmentName, collegeName: isHod.collegeName });
     const allTeachers = [];
 
     for (const i of AllTeachersData) {
@@ -178,7 +177,7 @@ export const GetAllTeachers = TryCatch(async (req: AuthRequest, res: Response) =
 });
 
 export const GetNotification = TryCatch(async(req:AuthRequest , res:Response)=>{
-    const AllNotifications = await Notification.find({to:req.Id , userType:"Admin"}).select("upperHeadding description type pandingId");
+    const AllNotifications = await Notification.find({to:req.Id , userType:"Hod"}).select("upperHeadding description type pandingId");
     res.status(200).json({ success: true, notifications: AllNotifications });
 });
 
@@ -212,11 +211,11 @@ export const GetTeacherInfoFromId = TryCatch(async (req: Request, res: Response)
 export const SendNotification = TryCatch(async(req:AuthRequest , res:Response)=>{
     const {message , teacherId} = req.body;
     if(!message || !teacherId) return ErrorHandler(res , "Server Can't Get Proper Data (199)" , 404);
-    const isAdmin = await Admin.findById(req.Id);
-    if(!isAdmin) return ErrorHandler(res , "Server Can't Get Proper Data (201)" , 404);
+    const isHod = await Hod.findById(req.Id);
+    if(!isHod) return ErrorHandler(res , "Server Can't Get Proper Data (201)" , 404);
 
     await Notification.create({
-        upperHeadding:`${isAdmin.fullName} Send You New Message...`,
+        upperHeadding:`${isHod.fullName} Send You New Message...`,
         description:message,
         to:teacherId,
         userType:"Teacher",
@@ -347,11 +346,11 @@ export const Present_Absent_cards = TryCatch(async (req: Request, res: Response)
 export const GetAllCards = TryCatch(async (req: Request, res: Response) => {
     const AllStudentCount = await Student.countDocuments();
     const AllTeacherCount = await Teacher.countDocuments();
-    const AllAdminCount = await Admin.countDocuments();
+    const AllHodCount = await Hod.countDocuments();
 
     res.status(200).json({
         success: true,
-        CardsData: { AllAdminCount, AllStudentCount, AllTeacherCount }
+        CardsData: { AllHodCount, AllStudentCount, AllTeacherCount }
     })
 });
 
@@ -396,4 +395,4 @@ export const GetAttendaceOverview = TryCatch(async(req:Request , res:Response)=>
         success: true,
         DataOverview: last7DaysData
     })
-})
+});

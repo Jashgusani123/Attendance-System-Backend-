@@ -33,9 +33,9 @@ const PandingSchema = new Schema({
         enum: ["male", "female"],
         required: true,
     },
-    adminId: {
+    hodId: {
         type: Schema.Types.ObjectId,
-        ref: "Admin",
+        ref: "Hod",
         required: true
     },
     accepted: {
@@ -52,7 +52,7 @@ const PandingSchema = new Schema({
 
 export interface IPanding extends Document {
     _id: string;
-    adminId: Schema.Types.ObjectId,
+    hodId: Schema.Types.ObjectId,
     accepted: boolean,
     rejected:boolean,
     fullName: string;
@@ -64,11 +64,7 @@ export interface IPanding extends Document {
     createdAt?: Date;
 }
 
-PandingSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-});
+
 
 const Panding = model<IPanding>('Panding', PandingSchema);
 export default Panding;
