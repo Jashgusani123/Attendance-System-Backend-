@@ -18,6 +18,7 @@ import StudetRoutes from './Routes/StudentRoutes';
 import SupportedRoutes from './Routes/SupportedRoutes';
 import TeacherRoutes from './Routes/TeacherRoutes';
 import { AuthRequest, GetUser } from "./Utils/Authentication";
+import { setupGoogleCredentials } from './config/setupGCP';
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -40,7 +41,7 @@ app.use(cookieParser());
 
 // Connect to MongoDB
 connectDB();
-// setupGoogleCredentials();
+setupGoogleCredentials();
 // Create HTTP Server for Socket.IO
 const server = createServer(app);
 const io = new Server(server, {
