@@ -14,9 +14,9 @@ import { sendEmail } from "../Utils/SendEmail";
 
 
 export const Register = TryCatch(async (req: Request, res: Response) => {
-    const { fullName, email, password, collegeName, departmentName } = req.body;
+    const { fullName, email, password, collegeName, departmentName , gender } = req.body;
 
-    if (!fullName && !email && !password && !collegeName && !departmentName) {
+    if (!fullName && !email && !password && !collegeName && !departmentName && !gender) {
         return ErrorHandler(res, "All Data Not Get Properly!!", 404)
     }
     if (password.length < 6) {
@@ -37,7 +37,7 @@ export const Register = TryCatch(async (req: Request, res: Response) => {
     }
 
     const newHod = await Hod.create({
-        fullName, email, password, collegeName, departmentName
+        fullName, email, password, collegeName, departmentName, gender
     });
     const secretKey = newHod._id.toString().slice(-10);
     newHod.secretKey = secretKey;

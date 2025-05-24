@@ -10,47 +10,66 @@ import CookieSender from '../Utils/CookieSender';
 import { ErrorHandler } from '../Utils/ErrorHandling';
 
 
-export const Register = TryCatch(
-    async (
-        req: Request<{}, {}, NewStudent>,
-        res: Response,
-        next: NextFunction
-    ) => {
-        const { fullName, email, password, semester, departmentName, enrollmentNumber, collegeName, collegeJoiningDate, gender } = req.body;
+export const Register = TryCatch(async (req: Request<{}, {}, NewStudent>, res: Response, next: NextFunction) => {
+    const {
+        fullName,
+        email,
+        password,
+        semester,
+        departmentName,
+        enrollmentNumber,
+        collegeName,
+        collegeJoiningDate,
+        gender
+    } = req.body;
 
-        if (fullName && email && password && semester && departmentName && enrollmentNumber && collegeName && collegeJoiningDate && password.length >= 6) {
-            const student = await Student.create({
-                fullName,
-                email,
-                password,
-                semester,
-                departmentName,
-                enrollmentNumber,
-                collegeName,
-                collegeJoiningDate,
-                gender
-            }) as IStudent;
-            CookieSender(res, student._id.toString(), "Student")
-            res.status(201).json({
-                success: true,
-                message: `Register Commpleted !! ${student.fullName}`,
-                user: student,
-            });
-        } else if (password.length <= 6) {
-            ErrorHandler(res, "Password Should be 6 length", 411);
-        }
-        else {
+    const isValidEmail = (email: string) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-            ErrorHandler(res, "Required AllFileds!!", 400);
-        }
+    if (
+        !fullName ||
+        !email ||
+        !password ||
+        !semester ||
+        !departmentName ||
+        !enrollmentNumber ||
+        !collegeName ||
+        !collegeJoiningDate ||
+        !gender
+    ) {
+        return ErrorHandler(res, "All fields are required!", 400);
     }
-);
 
-export const login = TryCatch(async (
-    req: Request<{}, {}, StudentLogin>,
-    res: Response,
-    next: NextFunction
-) => {
+    if (password.length < 6) {
+        return ErrorHandler(res, "Password should be at least 6 characters long", 411);
+    }
+
+    if (!isValidEmail(email)) {
+        return ErrorHandler(res, "Invalid email format", 422);
+    }
+
+    const student = (await Student.create({
+        fullName,
+        email,
+        password,
+        semester,
+        departmentName,
+        enrollmentNumber,
+        collegeName,
+        collegeJoiningDate,
+        gender
+    })) as IStudent;
+
+    CookieSender(res, student._id.toString(), "Student");
+
+    res.status(201).json({
+        success: true,
+        message: `Registration Completed!! ${student.fullName}`,
+        user: student
+    });
+});
+
+export const login = TryCatch(async (req: Request<{}, {}, StudentLogin>,res: Response,next: NextFunction) => {
     const { fullName, email, password, enrollmentNumber } = req.body;
     if (fullName && email && password && enrollmentNumber) {
         const student = await Student.findOne({ email });
@@ -75,8 +94,7 @@ export const login = TryCatch(async (
 export const f = async (req: Request, res: Response, next: NextFunction) => {
     res.status(200).json({
         message: "Work"
-    });
-};
+});};
 
 export const Logout = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
     const cookieOptions = {
@@ -107,7 +125,7 @@ export const getStudent = TryCatch(async (req: AuthRequest, res: Response, next:
 
 export const GetClasses = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
     const student = await Student.findById(req.Id);
-    const Classes = await Class.find({ allStudent:{ $in: [student?.enrollmentNumber] }  });
+    const Classes = await Class.find({ allStudent: { $in: [student?.enrollmentNumber] } });
 
     const currentDateTime = moment(); // Current full timestamp
 
@@ -153,12 +171,12 @@ export const GetLastAttendance = TryCatch(async (req: AuthRequest, res: Response
             let day = days[startOfDay.getDay()];
 
             last7DaysData.push({
-                date:day, // Format as YYYY-MM-DD
+                date: day, // Format as YYYY-MM-DD
                 totalClasses,
                 yourAttendance
             });
         }
-        
+
         return res.status(200).json({
             success: true,
             last7DaysData: last7DaysData.reverse()

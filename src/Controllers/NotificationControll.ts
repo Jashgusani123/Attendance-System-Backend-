@@ -17,7 +17,6 @@ export const CreateNotification = TryCatch(async (
     } else if(req.type === "Hod" || req.type === "Panding"){
         userType = "Hod";
     }
-    console.log(userType);
     
     if (type === process.env.CLASSCREATION && allStudent) {
         if (!upperHeadding || !description) {

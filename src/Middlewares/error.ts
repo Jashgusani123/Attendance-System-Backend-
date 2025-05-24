@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { log } from "node:console";
 
 type ControllerType = (
     req: Request,

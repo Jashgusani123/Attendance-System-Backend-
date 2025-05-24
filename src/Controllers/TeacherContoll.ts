@@ -20,7 +20,6 @@ export const Register = TryCatch(
         next: NextFunction
     ) => {
         const { fullName, email, password, departmentName, collegeName, gender } = req.body;
-        console.log(password);
         
         if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
             const isTeacher = await Teacher.find({ email: email });

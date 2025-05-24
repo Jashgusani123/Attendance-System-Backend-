@@ -26,7 +26,6 @@ const Hod_1 = __importDefault(require("../Models/Hod"));
 const Notification_1 = __importDefault(require("../Models/Notification"));
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { fullName, email, password, departmentName, collegeName, gender } = req.body;
-    console.log(password);
     if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
         const isTeacher = yield Teacher_1.default.find({ email: email });
         if (isTeacher.length > 0) {

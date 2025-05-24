@@ -25,7 +25,6 @@ exports.CreateNotification = (0, error_1.TryCatch)((req, res, next) => __awaiter
     else if (req.type === "Hod" || req.type === "Panding") {
         userType = "Hod";
     }
-    console.log(userType);
     if (type === process.env.CLASSCREATION && allStudent) {
         if (!upperHeadding || !description) {
             (0, ErrorHandling_1.ErrorHandler)(res, "Give Title and Description For that!!");

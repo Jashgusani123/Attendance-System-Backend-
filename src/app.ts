@@ -41,7 +41,7 @@ app.use(cookieParser());
 
 // Connect to MongoDB
 connectDB();
-setupGoogleCredentials();
+// setupGoogleCredentials();
 // Create HTTP Server for Socket.IO
 const server = createServer(app);
 const io = new Server(server, {

@@ -22,31 +22,41 @@ const CookieSender_1 = __importDefault(require("../Utils/CookieSender"));
 const ErrorHandling_1 = require("../Utils/ErrorHandling");
 exports.Register = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { fullName, email, password, semester, departmentName, enrollmentNumber, collegeName, collegeJoiningDate, gender } = req.body;
-    if (fullName && email && password && semester && departmentName && enrollmentNumber && collegeName && collegeJoiningDate && password.length >= 6) {
-        const student = yield Student_1.default.create({
-            fullName,
-            email,
-            password,
-            semester,
-            departmentName,
-            enrollmentNumber,
-            collegeName,
-            collegeJoiningDate,
-            gender
-        });
-        (0, CookieSender_1.default)(res, student._id.toString(), "Student");
-        res.status(201).json({
-            success: true,
-            message: `Register Commpleted !! ${student.fullName}`,
-            user: student,
-        });
+    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!fullName ||
+        !email ||
+        !password ||
+        !semester ||
+        !departmentName ||
+        !enrollmentNumber ||
+        !collegeName ||
+        !collegeJoiningDate ||
+        !gender) {
+        return (0, ErrorHandling_1.ErrorHandler)(res, "All fields are required!", 400);
     }
-    else if (password.length <= 6) {
-        (0, ErrorHandling_1.ErrorHandler)(res, "Password Should be 6 length", 411);
+    if (password.length < 6) {
+        return (0, ErrorHandling_1.ErrorHandler)(res, "Password should be at least 6 characters long", 411);
     }
-    else {
-        (0, ErrorHandling_1.ErrorHandler)(res, "Required AllFileds!!", 400);
+    if (!isValidEmail(email)) {
+        return (0, ErrorHandling_1.ErrorHandler)(res, "Invalid email format", 422);
     }
+    const student = (yield Student_1.default.create({
+        fullName,
+        email,
+        password,
+        semester,
+        departmentName,
+        enrollmentNumber,
+        collegeName,
+        collegeJoiningDate,
+        gender
+    }));
+    (0, CookieSender_1.default)(res, student._id.toString(), "Student");
+    res.status(201).json({
+        success: true,
+        message: `Registration Completed!! ${student.fullName}`,
+        user: student
+    });
 }));
 exports.login = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { fullName, email, password, enrollmentNumber } = req.body;
