@@ -112,7 +112,6 @@ export const Logout = TryCatch(async (req: Request, res: Response) => {
         message: "Logout Done!!",
     });
 });
-
 // For DashBoard 
 export const GetAllStudents = TryCatch(async (req: AuthRequest, res: Response) => {
     const isHod = await Hod.findById(req.Id);

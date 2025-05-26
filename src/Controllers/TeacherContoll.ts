@@ -19,7 +19,7 @@ export const Register = TryCatch(
         res: Response,
         next: NextFunction
     ) => {
-        const { fullName, email, password, departmentName, collegeName, gender } = req.body;
+        const { fullName, email, password, departmentName, collegeName, gender   } = req.body;
         
         if (fullName && email && password && departmentName && gender && collegeName && password.length >= 6) {
             const isTeacher = await Teacher.find({ email: email });
@@ -27,7 +27,6 @@ export const Register = TryCatch(
             if (isTeacher.length > 0) {
                 return ErrorHandler(res, "This Account Allready Created!! ");
             }
-            
             
             const teacher = await Teacher.create({
                 fullName,
