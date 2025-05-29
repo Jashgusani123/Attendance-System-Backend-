@@ -16,9 +16,11 @@ import NotificationRoute from './Routes/NotificationRoute';
 import PandingRoute from './Routes/PandingRoute';
 import StudetRoutes from './Routes/StudentRoutes';
 import SupportedRoutes from './Routes/SupportedRoutes';
+import AdminRoute from './Routes/AdminRoute';
 import TeacherRoutes from './Routes/TeacherRoutes';
 import { AuthRequest, GetUser } from "./Utils/Authentication";
 import { setupGoogleCredentials } from './config/setupGCP';
+import { cloudinaryConfig } from './config/Cloudinary';
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -41,8 +43,11 @@ app.use(cookieParser());
 
 // Connect to MongoDB
 connectDB();
-// setupGoogleCredentials();
+setupGoogleCredentials();
+cloudinaryConfig();
 // Create HTTP Server for Socket.IO
+
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -158,6 +163,7 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
 
 // Routes - v1
 app.use("/api/v1/supported" , SupportedRoutes);
+app.use("/api/v1/admin" , AdminRoute);
 
 
 // Start Server
