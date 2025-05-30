@@ -176,7 +176,10 @@ export const GetAllTeachers = TryCatch(async (req: AuthRequest, res: Response) =
 });
 
 export const GetNotification = TryCatch(async(req:AuthRequest , res:Response)=>{
-    const AllNotifications = await Notification.find({to:req.Id , userType:"Hod"}).select("upperHeadding description type pandingId");
+    const AllNotifications = await Notification.find({$or: [
+        { to: req.Id },
+        { allUsers: req.Id } // Match if user's ID is in the allUsers array
+      ]}).select("upperHeadding description type pandingId");
     res.status(200).json({ success: true, notifications: AllNotifications });
 });
 

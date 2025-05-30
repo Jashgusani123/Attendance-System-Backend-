@@ -33,7 +33,6 @@ const SupportedRoutes_1 = __importDefault(require("./Routes/SupportedRoutes"));
 const AdminRoute_1 = __importDefault(require("./Routes/AdminRoute"));
 const TeacherRoutes_1 = __importDefault(require("./Routes/TeacherRoutes"));
 const Authentication_1 = require("./Utils/Authentication");
-const setupGCP_1 = require("./config/setupGCP");
 const Cloudinary_1 = require("./config/Cloudinary");
 dotenv_1.default.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -50,7 +49,7 @@ app.use((0, cors_1.default)({
 app.use((0, cookie_parser_1.default)());
 // Connect to MongoDB
 (0, ConnectDB_1.default)();
-(0, setupGCP_1.setupGoogleCredentials)();
+// setupGoogleCredentials();
 (0, Cloudinary_1.cloudinaryConfig)();
 // Create HTTP Server for Socket.IO
 const server = (0, http_1.createServer)(app);

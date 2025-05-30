@@ -22,6 +22,10 @@ const NotificationSchema = new Schema(
             type: [String], 
             required: true,
         },
+        allUsers: {
+            type: [String], 
+            required: true,
+        },
         to:{
             type:String,
         },
@@ -39,6 +43,7 @@ export interface MyNotification extends Document {
     upperHeadding: string;
     description: string;
     to?:string;
+    allUsers?:string[],
     pandingId?:string
 }
 

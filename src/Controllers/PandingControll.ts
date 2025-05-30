@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
 import { TryCatch } from "../Middlewares/error";
 import Hod from "../Models/Hod";
+import Notification from "../Models/Notification";
 import Panding from "../Models/Panding";
 import { AuthRequest } from "../Utils/Authentication";
 import cookieSender from "../Utils/CookieSender";
 import { ErrorHandler } from "../Utils/ErrorHandling";
-import Notification from "../Models/Notification";
-import Teacher from "../Models/Teacher";
 
 
 export const CreatePandingRequest = TryCatch(async (req: Request, res: Response) => {
@@ -48,7 +47,14 @@ export const DeletePandingRequest = TryCatch(async (req: AuthRequest, res: Respo
             success: true
         })
 
-    } else {
+    }else if(req.type === "Admin"){
+        const {id} = req.body;
+        await Panding.findByIdAndDelete(id);
+        res.status(200).json({
+            success: true
+        })
+    }
+     else {
         return ErrorHandler(res, "Something went wrong (49) !!");
     }
 });

@@ -55,6 +55,10 @@ const NotificationSchema = new mongoose_1.Schema({
         type: [String],
         required: true,
     },
+    allUsers: {
+        type: [String],
+        required: true,
+    },
     to: {
         type: String,
     },

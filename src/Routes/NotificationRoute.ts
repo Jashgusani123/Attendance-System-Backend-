@@ -4,7 +4,7 @@ import { GetUser } from "../Utils/Authentication";
 
 const app = express();
 
-app.post("/create" , GetUser ,CreateNotification )
+app.post("/create"  ,CreateNotification )
 app.post("/get" , GetUser ,GetUserNotifications )
 
 export default app;

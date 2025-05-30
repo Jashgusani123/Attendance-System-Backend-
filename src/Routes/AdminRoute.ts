@@ -1,5 +1,5 @@
 import express from 'express'
-import { allUsers, bySearchCollege, CardDataGoted, CreateCollege, FirstTable, GetAllCollege, GetCollege } from '../Controllers/AdminControll';
+import { allUsers, bySearchCollege, CardDataGoted, CreateCollege, Departments, FirstTable, GetAllCollege, getAllFromClgAndDept, GetClasses, GetCollege, GetRequests } from '../Controllers/AdminControll';
 import { upload } from '../Utils/Multer';
 
 const Route = express();
@@ -15,6 +15,11 @@ Route.get("/firstcards" , CardDataGoted);
 Route.get("/alluser" , allUsers);
 Route.get("/college" , GetCollege);
 Route.get("/firsttable" , FirstTable);
+Route.get("/getdepartments" , Departments);
+Route.get("/getclasses" , GetClasses);
+Route.get("/getrequests" , GetRequests);
+Route.post("/getnames" , getAllFromClgAndDept);
+
 
 
 export default Route

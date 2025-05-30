@@ -10,6 +10,7 @@ import Student from "../Models/Student";
 import Class from "../Models/Class";
 import Panding from "../Models/Panding";
 import Notification from "../Models/Notification";
+import moment from "moment";
 
 export const CreateCollege = TryCatch(async (req: Request, res: Response) => {
 
@@ -234,3 +235,132 @@ export const FirstTable = TryCatch(async (req: Request, res: Response) => {
 
   res.status(200).json({ success: true, tableData: table });
 });
+
+export const Departments = TryCatch(async (req: Request, res: Response) => {
+  const colleges = await College.find();
+  const DepartmentData: Array<{ collegeName: String, departments: { name: String, hod: String | null }[] }> = [];
+
+  for (const college of colleges) {
+    const departments = [];
+
+    for (const deptName of college.department) {
+      const hod = await Hod.findOne({ collegeName: college.collegename, departmentName: deptName.toLowerCase() });
+
+      departments.push({
+        name: deptName,
+        hod: hod ? hod.fullName : "Not assigned",
+      });
+    }
+
+    DepartmentData.push({
+      collegeName: college.collegename,
+      departments
+    });
+  }
+
+  res.status(200).json({ success: true, data: DepartmentData });
+});
+
+export const GetClasses = TryCatch(async (req: Request, res: Response) => {
+  const Classes = await Class.find();
+  const now = moment(); // current time
+
+  const liveClasses: Array<{ title: string, college: string, department: string, teacher: string, time: string, status: string }> = [];
+  const lastClasses: Array<{ title: string, college: string, department: string, teacher: string, time: string, status: string }> = [];
+
+  for (const i of Classes) {
+    const start = moment(i.starting);
+    const end = moment(i.ending);
+
+    if (now.isBetween(start, end)) {
+      liveClasses.push({
+        title: i.subjectName,
+        college: i.collegeName,
+        department: i.departmentName,
+        teacher: i.teacherName,
+        time: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+        status: "Live Now"
+      });
+    } else if (now.isAfter(end)) {
+      lastClasses.push({
+        title: i.subjectName,
+        college: i.collegeName,
+        department: i.departmentName,
+        teacher: i.teacherName,
+        time: `${start.format("HH:mm")} - ${end.format("HH:mm")}`,
+        status: "Completed"
+      });
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    data: {
+      liveClasses,
+      lastClasses
+    }
+  });
+});
+
+export const GetRequests = TryCatch(async (req: Request, res: Response) => {
+ 
+  const DataOfPandingRequests: Array<{
+    id: String,
+    title: String,
+    college: String,
+    department: String,
+    reason: String,
+    requestedTo: String,
+    date: String,
+    status: String,
+  }> = []
+  const PandingRequests = await Panding.find();
+  const now = moment();
+  for (const i of PandingRequests) {
+    const hod = await Hod.findOne({_id:i.hodId});
+    const formattedDate = new Date(i.createdAt!).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    let status ;
+    if(!i.accepted && !i.rejected){
+      status = "Working"
+    }else{
+      status = "Expired"
+    }
+    DataOfPandingRequests.push({
+      id:i._id,
+      title:"Panding Request",
+      college:i.collegeName,
+      department:i.departmentName,
+      reason:"Create Account",
+      requestedTo:hod?.fullName ? hod.fullName : "unkown",
+      date:formattedDate,
+      status:status
+    })
+  }
+  res.status(200).json({ success: true, data: DataOfPandingRequests });
+
+});
+
+export const getAllFromClgAndDept = TryCatch(async (req: Request, res: Response) => {
+  const {departmentName , collegeName} = req.body
+
+  if(!departmentName || !collegeName){
+    return ErrorHandler(res, "Not Get Proper Data !! " , 404);
+  }
+  const [Students , Hods , Teachers] = await Promise.all([
+    Student.find({collegeName , departmentName}).select("fullName"),
+    Hod.find({collegeName , departmentName}).select("fullName"),
+    Teacher.find({collegeName , departmentName}).select("fullName")
+  ])
+  
+  const users = [...Students , ...Hods , ...Teachers ];
+
+
+  res.status(200).json({
+    success:true,
+    users
+  })
+})
