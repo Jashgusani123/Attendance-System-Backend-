@@ -363,4 +363,29 @@ export const getAllFromClgAndDept = TryCatch(async (req: Request, res: Response)
     success:true,
     users
   })
-})
+});
+
+export const GetAllNotifications = TryCatch(async(req:Request, res:Response)=>{
+  const Notifications = await Notification.find({type:"adminmessage"}).select("upperHeadding description allUsers to userType");
+ 
+  res.status(200).json({
+    success:true,
+    Notifications
+  })
+
+});
+
+export const DeleteNotification = TryCatch(async(req:Request , res:Response)=>{
+  const id = req.query.id as string; 
+
+  if(!id) return ErrorHandler(res, "Not Got Proper Data !!" , 404);
+
+  await Notification.findByIdAndDelete(id);
+
+  res.status(200).json({
+    success:true,
+    message:"Deleted Successfully !!"
+  })
+
+  
+});
