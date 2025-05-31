@@ -21,6 +21,9 @@ const cookieSender = (res, Id, type) => {
     else if (type && type === "Hod") {
         res.status(200).cookie("Hod", token, cookieOptions);
     }
+    else if (type && type === "Admin") {
+        res.status(200).cookie("Admin", token, cookieOptions);
+    }
     else {
         res.status(200).cookie("Panding", token, cookieOptions);
     }

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetLastAttendance = exports.GetClasses = exports.getStudent = exports.Logout = exports.f = exports.login = exports.Register = void 0;
+exports.GetLastAttendance = exports.GetClasses = exports.getStudent = exports.Logout = exports.login = exports.Register = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const moment_1 = __importDefault(require("moment"));
 const error_1 = require("../Middlewares/error");
@@ -80,12 +80,6 @@ exports.login = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void
         (0, ErrorHandling_1.ErrorHandler)(res, "Required AllFileds!!", 400);
     }
 }));
-const f = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    res.status(200).json({
-        message: "Work"
-    });
-});
-exports.f = f;
 exports.Logout = (0, error_1.TryCatch)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const cookieOptions = {
         maxAge: 0, // Expire immediately

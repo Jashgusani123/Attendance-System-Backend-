@@ -34,6 +34,7 @@ const AdminRoute_1 = __importDefault(require("./Routes/AdminRoute"));
 const TeacherRoutes_1 = __importDefault(require("./Routes/TeacherRoutes"));
 const Authentication_1 = require("./Utils/Authentication");
 const Cloudinary_1 = require("./config/Cloudinary");
+const Admin_1 = __importDefault(require("./Models/Admin"));
 dotenv_1.default.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
 // Initialize Express App
@@ -136,6 +137,9 @@ app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, vo
         }
         else if (req.type === "Hod") {
             model = Hod_1.default;
+        }
+        else if (req.type === "Admin") {
+            model = Admin_1.default;
         }
         else {
             model = Panding_1.default;

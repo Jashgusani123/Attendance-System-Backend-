@@ -21,6 +21,7 @@ import TeacherRoutes from './Routes/TeacherRoutes';
 import { AuthRequest, GetUser } from "./Utils/Authentication";
 import { setupGoogleCredentials } from './config/setupGCP';
 import { cloudinaryConfig } from './config/Cloudinary';
+import Admin from './Models/Admin';
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -139,7 +140,9 @@ app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<vo
       model = Teacher;
     } else if (req.type === "Hod"){
       model = Hod;
-    }else {
+    }else if (req.type === "Admin"){
+      model = Admin;
+    } else {
       model = Panding;
     }
 

@@ -91,10 +91,6 @@ export const login = TryCatch(async (req: Request<{}, {}, StudentLogin>,res: Res
     }
 })
 
-export const f = async (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).json({
-        message: "Work"
-});};
 
 export const Logout = TryCatch(async (req: AuthRequest, res: Response, next: NextFunction) => {
     const cookieOptions = {

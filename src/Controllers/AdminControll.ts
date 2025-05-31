@@ -11,6 +11,68 @@ import Class from "../Models/Class";
 import Panding from "../Models/Panding";
 import Notification from "../Models/Notification";
 import moment from "moment";
+import Admin from "../Models/Admin";
+import CookieSender from "../Utils/CookieSender";
+import bcrypt from 'bcryptjs';
+import { AuthRequest } from "../Utils/Authentication";
+import jwt from "jsonwebtoken";
+
+
+
+export const Registraction = TryCatch(async(req:Request , res:Response)=>{
+  const {email , password} = req.body;
+  if(!email || !password){
+    return ErrorHandler(res , "Not Get Proper Data !!" , 404);
+  }
+  const newAdmin = await Admin.create({
+    email ,
+    password
+  })
+  CookieSender(res, newAdmin._id.toString(), "Admin");
+  res.status(201).json({
+    success: true,
+    message: `Registration Completed!! `,
+    user: newAdmin
+});
+  
+});
+
+export const login = TryCatch(async (req: Request,res: Response) => {
+  const {  email, password } = req.body;
+  if ( email && password) {
+      const admin = await Admin.findOne({ email });
+      const truePassword = await bcrypt.compare(password, admin?.password!);
+      if (truePassword && admin) {
+          CookieSender(res, admin._id.toString(), "Admin")
+          return res.status(202).json({
+              success: true,
+              message: "WellCome Admin",
+              user: admin
+          })
+      } else {
+
+          ErrorHandler(res, "Email or Password Should be Wrong !!", 401);
+      }
+  } else {
+      ErrorHandler(res, "Required AllFileds!!", 400);
+  }
+});
+
+export const Logout = TryCatch(async (req: Request, res: Response) => {
+  const cookieOptions = {
+      maxAge: 0, // Expire immediately
+      sameSite: "none" as const,
+      httpOnly: true,
+      secure: true,
+  };
+
+  res.cookie("Admin", "", cookieOptions);
+
+  res.status(200).json({
+      success: true,
+      message: "Logout Done!!",
+  });
+});
 
 export const CreateCollege = TryCatch(async (req: Request, res: Response) => {
 
@@ -388,4 +450,32 @@ export const DeleteNotification = TryCatch(async(req:Request , res:Response)=>{
   })
 
   
+});
+
+export const handleRegistation = TryCatch(async (req: AuthRequest, res: Response) => {
+  const { credentialID, publicKey, counter, transports } = req.body;
+
+  if (!credentialID || !publicKey) {
+    return res.status(400).json({ message: "Missing credential data" });
+  }
+  
+  // You can find the admin using session or for now use the first one
+  const admin = await Admin.findById(req.Id); // Or use: await Admin.findById(req.adminId);
+  if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+  admin.credentials.push({ credentialID, publicKey, counter, transports });
+  await admin.save();
+
+  res.status(200).json({ message: "Fingerprint credential registered" });
+});
+export const handleFingerprintLogin = TryCatch(async (req: Request, res: Response) => {
+  const { credentialID } = req.body;
+  if (!credentialID) return res.status(400).json({ message: "Missing credential ID" });
+
+  const admin = await Admin.findOne({ "credentials.credentialID": credentialID });
+  if (!admin) return res.status(401).json({ message: "Invalid fingerprint" });
+  const token = jwt.sign({ _id: admin._id }, process.env.JWT_SECRET!);
+
+  // const token = generateToken(admin._id); // if using JWT
+  res.status(200).json({ success: true, user: admin, token });
 });

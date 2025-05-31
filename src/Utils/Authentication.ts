@@ -16,10 +16,11 @@ export const GetUser = async (req: AuthRequest, res: Response, next: NextFunctio
     const token2 = req.cookies?.["Teacher"]; // Teacher token
     const token3 = req.cookies?.["Student"]; // Student token
     const token4 = req.cookies?.["Panding"]; // Student token
+    const token5 = req.cookies?.["Admin"]; // Student token
 
     
 
-    if (!token1 && !token2 && !token3 && !token4) {
+    if (!token1 && !token2 && !token3 && !token4 && !token5) {
       
       res.status(401).json({ message: "Unauthorized: No token provided"});
       return; // Stops execution if no tokens are provided
@@ -45,12 +46,16 @@ export const GetUser = async (req: AuthRequest, res: Response, next: NextFunctio
     } else if (token3) {
       decoded = jwt.verify(token3, process.env.JWT_SECRET) as { _id: string };
       userType = "Student";
+    }else if (token5) {
+      decoded = jwt.verify(token5, process.env.JWT_SECRET) as { _id: string };
+      userType = "Admin";
     }else {
       decoded = jwt.verify(token4, process.env.JWT_SECRET) as { _id: string };
       userType = "Panding";
     }
 
     // If a decoded user exists, assign the values to the request and proceed
+    
     if (decoded && userType) {
       req.Id = decoded._id; // Assign the user ID
       req.isLoggedIn = true; // Mark the user as logged in
