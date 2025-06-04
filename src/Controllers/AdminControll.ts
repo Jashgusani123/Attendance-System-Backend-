@@ -556,8 +556,6 @@ export const loginFingerVerify = TryCatch(async (req: Request, res: Response) =>
     return ErrorHandler(res, "Challenge or passkey not found", 400);
   }
 
-  const publicKeyBuffer = Buffer.from(passkey.credentialPublicKey);
-
 
 
   const credentialIDBuffer = Buffer.from(passkey.credentialID.buffer);
@@ -565,8 +563,8 @@ export const loginFingerVerify = TryCatch(async (req: Request, res: Response) =>
 
   const verification = await verifyAuthenticationResponse({
     expectedChallenge: loginChallenge,
-    expectedOrigin: "http://localhost:5173",
-    expectedRPID: "localhost",
+    expectedOrigin: "https://attendance-system-gold-six.vercel.app",
+    expectedRPID: "attendance-system-gold-six.vercel.app",
     response: cred,
     credential: {
       id: base64url(credentialIDBuffer),
