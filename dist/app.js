@@ -35,6 +35,7 @@ const TeacherRoutes_1 = __importDefault(require("./Routes/TeacherRoutes"));
 const Authentication_1 = require("./Utils/Authentication");
 const Cloudinary_1 = require("./config/Cloudinary");
 const Admin_1 = __importDefault(require("./Models/Admin"));
+const crypto_1 = __importDefault(require("crypto"));
 dotenv_1.default.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
 // Initialize Express App
@@ -42,7 +43,7 @@ const app = (0, express_1.default)();
 // Middleware
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: ["https://attendance-system-txfn.onrender.com", "http://192.168.0.192:5173/", "http://localhost:5173", process.env.FRONTEND],
+    origin: ["https://attendance-system-txfn.onrender.com", "http://192.168.0.192:5173/", "http://localhost:5173", "https://2df8-103-147-192-86.ngrok-free.app", process.env.FRONTEND],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -61,6 +62,7 @@ const io = new socket_io_1.Server(server, {
             "http://localhost:5173",
             "http://192.168.0.192:5173/",
             "https://attendance-system-txfn.onrender.com",
+            "https://2df8-103-147-192-86.ngrok-free.app",
             process.env.FRONTEND
         ],
         credentials: true,
@@ -126,6 +128,10 @@ app.use("/class", ClassRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
 app.use("/hod", HodRoute_1.default);
 app.use("/panding", PandingRoute_1.default);
+app.get("/get-challenge", (req, res) => {
+    const challenge = crypto_1.default.randomBytes(32);
+    res.status(200).json({ challenge });
+});
 app.get("/getuser", Authentication_1.GetUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let model = null;

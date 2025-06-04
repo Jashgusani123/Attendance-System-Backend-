@@ -16,16 +16,19 @@ import CookieSender from "../Utils/CookieSender";
 import bcrypt from 'bcryptjs';
 import { AuthRequest } from "../Utils/Authentication";
 import jwt from "jsonwebtoken";
+import { generateAuthenticationOptions, generateRegistrationOptions, verifyRegistrationResponse } from "@simplewebauthn/server";
+import { verifyAuthenticationResponse } from '@simplewebauthn/server';
+import { AuthenticatorDevice } from '@simplewebauthn/typescript-types';
+import base64url from 'base64url';
 
 
-
-export const Registraction = TryCatch(async(req:Request , res:Response)=>{
-  const {email , password} = req.body;
-  if(!email || !password){
-    return ErrorHandler(res , "Not Get Proper Data !!" , 404);
+export const Registraction = TryCatch(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return ErrorHandler(res, "Not Get Proper Data !!", 404);
   }
   const newAdmin = await Admin.create({
-    email ,
+    email,
     password
   })
   CookieSender(res, newAdmin._id.toString(), "Admin");
@@ -33,44 +36,44 @@ export const Registraction = TryCatch(async(req:Request , res:Response)=>{
     success: true,
     message: `Registration Completed!! `,
     user: newAdmin
-});
-  
+  });
+
 });
 
-export const login = TryCatch(async (req: Request,res: Response) => {
-  const {  email, password } = req.body;
-  if ( email && password) {
-      const admin = await Admin.findOne({ email });
-      const truePassword = await bcrypt.compare(password, admin?.password!);
-      if (truePassword && admin) {
-          CookieSender(res, admin._id.toString(), "Admin")
-          return res.status(202).json({
-              success: true,
-              message: "WellCome Admin",
-              user: admin
-          })
-      } else {
+export const login = TryCatch(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (email && password) {
+    const admin = await Admin.findOne({ email });
+    const truePassword = await bcrypt.compare(password, admin?.password!);
+    if (truePassword && admin) {
+      CookieSender(res, admin._id.toString(), "Admin")
+      return res.status(202).json({
+        success: true,
+        message: "WellCome Admin",
+        user: admin
+      })
+    } else {
 
-          ErrorHandler(res, "Email or Password Should be Wrong !!", 401);
-      }
+      ErrorHandler(res, "Email or Password Should be Wrong !!", 401);
+    }
   } else {
-      ErrorHandler(res, "Required AllFileds!!", 400);
+    ErrorHandler(res, "Required AllFileds!!", 400);
   }
 });
 
 export const Logout = TryCatch(async (req: Request, res: Response) => {
   const cookieOptions = {
-      maxAge: 0, // Expire immediately
-      sameSite: "none" as const,
-      httpOnly: true,
-      secure: true,
+    maxAge: 0, // Expire immediately
+    sameSite: "none" as const,
+    httpOnly: true,
+    secure: true,
   };
 
   res.cookie("Admin", "", cookieOptions);
 
   res.status(200).json({
-      success: true,
-      message: "Logout Done!!",
+    success: true,
+    message: "Logout Done!!",
   });
 });
 
@@ -365,7 +368,7 @@ export const GetClasses = TryCatch(async (req: Request, res: Response) => {
 });
 
 export const GetRequests = TryCatch(async (req: Request, res: Response) => {
- 
+
   const DataOfPandingRequests: Array<{
     id: String,
     title: String,
@@ -379,27 +382,27 @@ export const GetRequests = TryCatch(async (req: Request, res: Response) => {
   const PandingRequests = await Panding.find();
   const now = moment();
   for (const i of PandingRequests) {
-    const hod = await Hod.findOne({_id:i.hodId});
+    const hod = await Hod.findOne({ _id: i.hodId });
     const formattedDate = new Date(i.createdAt!).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
-    let status ;
-    if(!i.accepted && !i.rejected){
+    let status;
+    if (!i.accepted && !i.rejected) {
       status = "Working"
-    }else{
+    } else {
       status = "Expired"
     }
     DataOfPandingRequests.push({
-      id:i._id,
-      title:"Panding Request",
-      college:i.collegeName,
-      department:i.departmentName,
-      reason:"Create Account",
-      requestedTo:hod?.fullName ? hod.fullName : "unkown",
-      date:formattedDate,
-      status:status
+      id: i._id,
+      title: "Panding Request",
+      college: i.collegeName,
+      department: i.departmentName,
+      reason: "Create Account",
+      requestedTo: hod?.fullName ? hod.fullName : "unkown",
+      date: formattedDate,
+      status: status
     })
   }
   res.status(200).json({ success: true, data: DataOfPandingRequests });
@@ -407,75 +410,183 @@ export const GetRequests = TryCatch(async (req: Request, res: Response) => {
 });
 
 export const getAllFromClgAndDept = TryCatch(async (req: Request, res: Response) => {
-  const {departmentName , collegeName} = req.body
+  const { departmentName, collegeName } = req.body
 
-  if(!departmentName || !collegeName){
-    return ErrorHandler(res, "Not Get Proper Data !! " , 404);
+  if (!departmentName || !collegeName) {
+    return ErrorHandler(res, "Not Get Proper Data !! ", 404);
   }
-  const [Students , Hods , Teachers] = await Promise.all([
-    Student.find({collegeName , departmentName}).select("fullName"),
-    Hod.find({collegeName , departmentName}).select("fullName"),
-    Teacher.find({collegeName , departmentName}).select("fullName")
+  const [Students, Hods, Teachers] = await Promise.all([
+    Student.find({ collegeName, departmentName }).select("fullName"),
+    Hod.find({ collegeName, departmentName }).select("fullName"),
+    Teacher.find({ collegeName, departmentName }).select("fullName")
   ])
-  
-  const users = [...Students , ...Hods , ...Teachers ];
+
+  const users = [...Students, ...Hods, ...Teachers];
 
 
   res.status(200).json({
-    success:true,
+    success: true,
     users
   })
 });
 
-export const GetAllNotifications = TryCatch(async(req:Request, res:Response)=>{
-  const Notifications = await Notification.find({type:"adminmessage"}).select("upperHeadding description allUsers to userType");
- 
+export const GetAllNotifications = TryCatch(async (req: Request, res: Response) => {
+  const Notifications = await Notification.find({ type: "adminmessage" }).select("upperHeadding description allUsers to userType");
+
   res.status(200).json({
-    success:true,
+    success: true,
     Notifications
   })
 
 });
 
-export const DeleteNotification = TryCatch(async(req:Request , res:Response)=>{
-  const id = req.query.id as string; 
+export const DeleteNotification = TryCatch(async (req: Request, res: Response) => {
+  const id = req.query.id as string;
 
-  if(!id) return ErrorHandler(res, "Not Got Proper Data !!" , 404);
+  if (!id) return ErrorHandler(res, "Not Got Proper Data !!", 404);
 
   await Notification.findByIdAndDelete(id);
 
   res.status(200).json({
-    success:true,
-    message:"Deleted Successfully !!"
+    success: true,
+    message: "Deleted Successfully !!"
   })
 
-  
+
 });
 
-export const handleRegistation = TryCatch(async (req: AuthRequest, res: Response) => {
-  const { credentialID, publicKey, counter, transports } = req.body;
+export const RegistationPasskey = TryCatch(async (req: Request, res: Response) => {
+  const { Id } = req.body;
+  const admin = await Admin.findById(Id);
+  if (!admin) return ErrorHandler(res, "Admin not found", 404);
 
-  if (!credentialID || !publicKey) {
-    return res.status(400).json({ message: "Missing credential data" });
-  }
+  // 1) Generate registration options
+  const options = await generateRegistrationOptions({
+    rpID: "attendance-system-gold-six.vercel.app", // ✅ Change
+    rpName: "Attendance System",
+    userID: Buffer.from(admin._id.toString()),
+    userName: admin.email,
+  });
   
-  // You can find the admin using session or for now use the first one
-  const admin = await Admin.findById(req.Id); // Or use: await Admin.findById(req.adminId);
-  if (!admin) return res.status(404).json({ message: "Admin not found" });
 
-  admin.credentials.push({ credentialID, publicKey, counter, transports });
+  // 2) Overwrite credentials array with a fresh challenge entry
+  admin.credentials = [
+    {
+      challenge: options.challenge,
+      passkey: null,
+    },
+  ];
   await admin.save();
 
-  res.status(200).json({ message: "Fingerprint credential registered" });
+  // 3) Return the publicKeyCredentialCreationOptions
+  return res.status(200).json({ message: "Fingerprint challenge generated", options });
 });
-export const handleFingerprintLogin = TryCatch(async (req: Request, res: Response) => {
-  const { credentialID } = req.body;
-  if (!credentialID) return res.status(400).json({ message: "Missing credential ID" });
 
-  const admin = await Admin.findOne({ "credentials.credentialID": credentialID });
-  if (!admin) return res.status(401).json({ message: "Invalid fingerprint" });
-  const token = jwt.sign({ _id: admin._id }, process.env.JWT_SECRET!);
+export const verifyRegistrationPasskey = TryCatch(async (req: Request, res: Response) => {
+  const { Id, cred } = req.body; // `cred` is the JSON returned by startRegistration()
 
-  // const token = generateToken(admin._id); // if using JWT
-  res.status(200).json({ success: true, user: admin, token });
+  const admin = await Admin.findById(Id);
+  if (!admin) return ErrorHandler(res, "Admin not found", 404);
+
+  // 1) Grab the single credential object we created earlier
+  const stored = admin.credentials[0];
+  if (!stored || !stored.challenge) {
+    return ErrorHandler(res, "No challenge stored for this user", 400);
+  }
+
+  // 2) Verify the registration response
+  const verification = await verifyRegistrationResponse({
+    response: cred,
+    expectedChallenge: stored.challenge,
+    expectedOrigin: "https://attendance-system-gold-six.vercel.app", 
+    expectedRPID: "attendance-system-gold-six.vercel.app",           
+  });
+
+  if (!verification.verified || !verification.registrationInfo) {
+    return ErrorHandler(res, "Verification Failed", 400);
+  }
+
+  // 3) Transform `verification.registrationInfo` into an AuthenticatorDevice
+  const ri = verification.registrationInfo;
+  const newPasskey: AuthenticatorDevice = {
+    credentialID: Buffer.from(ri.credential.id),
+    credentialPublicKey: Buffer.from(ri.credential.publicKey), // store as Buffer
+    counter: ri.credential.counter,
+    transports: ri.credential.transports,
+    // you can also add `aaguid`, `fmt`, etc. if you want, but only these are strictly required for login
+  };
+
+  // 4) Save that transformed object back into `passkey`
+  stored.passkey = newPasskey;
+  await admin.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Registration verification succeeded!",
+  });
+});
+
+
+export const loginChallengeForFingerprint = TryCatch(async (req: Request, res: Response) => {
+  const { Id } = req.body;
+
+  const admin = await Admin.findOne({ email: Id });
+  if (!admin) return ErrorHandler(res, "Admin not found", 404);
+  const options = await generateAuthenticationOptions({
+    rpID: "attendance-system-gold-six.vercel.app", 
+  });
+
+  admin.credentials[0].loginchallenge = options.challenge;
+  await admin.save();
+
+  res.status(200).json({
+    message: "Options",
+    options
+  })
+
+});
+export const loginFingerVerify = TryCatch(async (req: Request, res: Response) => {
+  const { email, cred } = req.body;
+  const admin = await Admin.findOne({ email });
+  if (!admin) return ErrorHandler(res, "Admin not found", 404);
+
+  const loginChallenge = admin.credentials[0]?.loginchallenge;
+  const passkey = admin.credentials[0].passkey;
+  if (!loginChallenge || !passkey || Object.keys(passkey).length === 0) {
+    return ErrorHandler(res, "Challenge or passkey not found", 400);
+  }
+
+  const publicKeyBuffer = Buffer.from(passkey.credentialPublicKey);
+
+
+
+  const credentialIDBuffer = Buffer.from(passkey.credentialID.buffer);
+  const credentialPublicKeyBuffer = Buffer.from(passkey.credentialPublicKey.buffer);
+
+  const verification = await verifyAuthenticationResponse({
+    expectedChallenge: loginChallenge,
+    expectedOrigin: "http://localhost:5173",
+    expectedRPID: "localhost",
+    response: cred,
+    credential: {
+      id: base64url(credentialIDBuffer),
+      publicKey: credentialPublicKeyBuffer,
+      counter: passkey.counter,
+      transports: passkey.transports,
+    },
+  });
+
+
+
+  if (!verification.verified) {
+    return ErrorHandler(res, "Verification Failed", 400);
+  };
+
+  CookieSender(res, admin._id.toString(), "Admin")
+  res.status(200).json({
+    message: "Welcome",
+    success: true
+  })
+
+
 });

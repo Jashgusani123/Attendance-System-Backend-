@@ -1,7 +1,6 @@
-import express from 'express'
-import { allUsers, bySearchCollege, CardDataGoted, CreateCollege, DeleteNotification, Departments, FirstTable, GetAllCollege, getAllFromClgAndDept, GetAllNotifications, GetClasses, GetCollege, GetRequests, handleFingerprintLogin, handleRegistation, login, Logout, Registraction } from '../Controllers/AdminControll';
+import express from 'express';
+import { allUsers, bySearchCollege, CardDataGoted, CreateCollege, DeleteNotification, Departments, FirstTable, GetAllCollege, getAllFromClgAndDept, GetAllNotifications, GetClasses, GetCollege, GetRequests, login, loginChallengeForFingerprint, loginFingerVerify, Logout, RegistationPasskey, Registraction, verifyRegistrationPasskey } from '../Controllers/AdminControll';
 import { upload } from '../Utils/Multer';
-import { GetUser } from '../Utils/Authentication';
 
 const Route = express();
 
@@ -26,8 +25,10 @@ Route.get("/getrequests" , GetRequests);
 Route.post("/getnames" , getAllFromClgAndDept);
 Route.get("/getnotifications" , GetAllNotifications);
 Route.delete("/deletenotification" , DeleteNotification);
-Route.put("/register-credential" , GetUser ,handleRegistation);
-Route.put("/login-fingerprint", handleFingerprintLogin);
+Route.post("/register-credential" ,RegistationPasskey);
+Route.post("/verify-credential" ,verifyRegistrationPasskey);
+Route.post("/login-credential" ,loginChallengeForFingerprint);
+Route.post("/login-verify" ,loginFingerVerify);
 
 
 

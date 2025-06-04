@@ -13,6 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@simplewebauthn/server": "^13.1.1",
+    "@simplewebauthn/typescript-types": "^8.3.4",
+    "base64url": "^3.0.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cloudinary": "^2.6.1",

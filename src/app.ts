@@ -22,6 +22,7 @@ import { AuthRequest, GetUser } from "./Utils/Authentication";
 import { setupGoogleCredentials } from './config/setupGCP';
 import { cloudinaryConfig } from './config/Cloudinary';
 import Admin from './Models/Admin';
+import crypto from "crypto";
 
 dotenv.config(); // Load environment variables
 const PORT = process.env.PORT || 5000;
@@ -33,7 +34,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: ["https://attendance-system-txfn.onrender.com", "http://192.168.0.192:5173/", "http://localhost:5173" , process.env.FRONTEND!],
+  origin: ["https://attendance-system-txfn.onrender.com", "http://192.168.0.192:5173/", "http://localhost:5173" , "https://2df8-103-147-192-86.ngrok-free.app" , process.env.FRONTEND!],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -44,7 +45,7 @@ app.use(cookieParser());
 
 // Connect to MongoDB
 connectDB();
-setupGoogleCredentials();
+// setupGoogleCredentials();
 cloudinaryConfig();
 // Create HTTP Server for Socket.IO
 
@@ -56,6 +57,7 @@ const io = new Server(server, {
       "http://localhost:5173",
       "http://192.168.0.192:5173/",
       "https://attendance-system-txfn.onrender.com",
+      "https://2df8-103-147-192-86.ngrok-free.app",
       process.env.FRONTEND!
     ],
     credentials: true,
@@ -130,7 +132,10 @@ app.use("/class" , ClassRoute);
 app.use("/notification" , NotificationRoute);
 app.use("/hod" , HodRoutes);
 app.use("/panding" , PandingRoute);
-
+app.get("/get-challenge", (req, res) => {
+  const challenge = crypto.randomBytes(32);
+  res.status(200).json({ challenge });
+});
 app.get("/getuser", GetUser, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     let model: Model<any> | null = null;
